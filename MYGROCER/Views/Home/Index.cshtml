@@ -2,6 +2,29 @@
     ViewData["Title"] = "Home Page";
 }
 
+<!-- Added vw-100 to force full window width, and negative horizontal margins to break out of the layout container -->
+<div class="p-5 text-center bg-image vw-100 position-relative"
+     style="background-image: url('https://cdn.create.vista.com/api/media/medium/317633680/stock-photo-cropped-view-woman-holding-toy-shopping-cart-small-boxes-laptop?token=');
+    height: 450px;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    left: 50%;
+    right: 50%;
+    margin-left: -50vw;
+    margin-right: -50vw;">
+
+    <div class="d-flex justify-content-center align-items-center h-100">
+        <div class="text-white p-4" style="background-color: rgba(0, 0, 0, 0.6); border-radius: 10px; max-width: 600px;">
+            <h1 class="mb-3 display-4 fw-bold">Welcome to Our Site</h1>
+            <p class="mb-3 lead">This is a fully responsive Bootstrap banner section.</p>
+            <a class="btn btn-outline-light btn-lg" href="#!" role="button">Get Started</a>
+        </div>
+    </div>
+</div>
+
+
+
 <div class="text-center">
     <h1 class="display-4">Welcome</h1>
     <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
