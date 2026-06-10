@@ -6,44 +6,47 @@
     <title>@ViewData["Title"] - MYGROCER</title>
     <script type="importmap"></script>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/MYGROCER.styles.css" asp-append-version="true" />
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm border-bottom box-shadow mb-3" style="background-color: #0b2240 !important;">
             <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">MYGROCER</a>
+                <a class="navbar-brand fw-bold fs-4" asp-area="" asp-controller="Home" asp-action="Index" style="font-family: 'Poppins', sans-serif; letter-spacing: -0.5px;">
+                    <span class="text-white">MY</span><span style="color: #4cb02c;">GROCER</span>
+                </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
+                    <span class="navbar-toggler-icon" style="filter: invert(1);"></span>
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                            <a class="nav-link text-white opacity-90 fw-medium" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Products" asp-action="Index">Products</a>
+                            <a class="nav-link text-white opacity-90 fw-medium" asp-area="" asp-controller="Products" asp-action="Index">Products</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Admin" asp-action="Index">Admin</a>
+                            <a class="nav-link text-white opacity-90 fw-medium" asp-area="" asp-controller="Admin" asp-action="Index">Admin</a>
                         </li>
-                        
                     </ul>
 
                     <ul class="navbar-nav ms-auto order-1 order-sm-2">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="ShoppingCart" asp-action="Index">Shopping Cart</a>
+                            <a class="nav-link text-white opacity-90 fw-medium" asp-area="" asp-controller="ShoppingCart" asp-action="Index">
+                                <i class="bi bi-cart3"></i> Shopping Cart
+                            </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="SignUp" asp-action="Index">Sign Up</a>
+                            <a class="nav-link text-white opacity-90 fw-medium" asp-area="" asp-controller="SignUp" asp-action="Index">Sign Up</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="SignIn" asp-action="Index">Sign In</a>
+                            <a class="nav-link text-white opacity-90 fw-medium" asp-area="" asp-controller="SignIn" asp-action="Index">Sign In</a>
                         </li>
                     </ul>
-
                 </div>
             </div>
         </nav>
