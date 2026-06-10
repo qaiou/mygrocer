@@ -1,4 +1,4 @@
-﻿@model IEnumerable<MYGROCER.Models.ProductsModel>
+@model IEnumerable<MYGROCER.Models.ProductsModel>
 @{
     ViewData["Title"] = "Products";
     var categories = ViewBag.Categories as List<string?> ?? new List<string?>();
@@ -44,14 +44,8 @@
     <!-- Results count -->
     <p class="text-muted small mb-3">
         Showing @Model.Count() product(s)
-        @if (!string.IsNullOrEmpty(currentCategory))
-        {
-            <text> in <strong>@currentCategory</strong></text>
-        }
-        @if (!string.IsNullOrEmpty(currentSearch))
-        {
-            <text> matching "<strong>@currentSearch</strong>"</text>
-        }
+        @if (!string.IsNullOrEmpty(currentCategory)) { <text> in <strong>@currentCategory</strong></text> }
+        @if (!string.IsNullOrEmpty(currentSearch)) { <text> matching "<strong>@currentSearch</strong>"</text> }
     </p>
 
     <!-- Product Grid -->
@@ -74,25 +68,11 @@
                         <div class="text-center pt-4 pb-2" style="font-size: 3.5rem">
                             @switch (product.Category)
                             {
-                                case "Fresh Produce":
-                                    <text>🥬</text>
-                                    break;
-                                case "Packaged Goods":
-
-                                    <text>📦</text>
-                                    break;
-                                case "Beverages":
-
-                                    <text>🥤</text>
-                                    break;
-                                case "Household":
-
-                                    <text>🧴</text>
-                                    break;
-                                default:
-
-                                    <text>🛍️</text>
-                                    break;
+                                case "Fresh Produce": <text>🥬</text> break;
+                                case "Packaged Goods": <text>📦</text> break;
+                                case "Beverages": <text>🥤</text> break;
+                                case "Household": <text>🧴</text> break;
+                                default: <text>🛍️</text> break;
                             }
                         </div>
                         <div class="card-body d-flex flex-column">

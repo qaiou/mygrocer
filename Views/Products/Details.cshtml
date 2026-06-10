@@ -1,0 +1,54 @@
+@model MYGROCER.Models.ProductsModel
+@{
+    ViewData["Title"] = Model.Name;
+}
+
+<div class="container mt-4" style="max-width: 600px;">
+    <a asp-action="Index" class="btn btn-outline-secondary btn-sm mb-4">
+        <i class="bi bi-arrow-left"></i> Back to Products
+    </a>
+
+    <div class="card p-4">
+        <div class="text-center mb-3" style="font-size: 5rem">
+            @switch (Model.Category)
+            {
+                case "Fresh Produce": <text>🥬</text> break;
+                case "Packaged Goods": <text>📦</text> break;
+                case "Beverages": <text>🥤</text> break;
+                case "Household": <text>🧴</text> break;
+                default: <text>🛍️</text> break;
+            }
+        </div>
+
+        <span class="badge badge-category mb-2 align-self-start">@Model.Category</span>
+        <h3 class="fw-bold">@Model.Name</h3>
+        <p class="text-muted">@Model.Description</p>
+
+        <hr />
+
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <span class="price-tag fs-3">RM @Model.BasePrice.ToString("F2")</span>
+            @if (Model.IsInStock)
+            {
+                <span class="badge bg-success fs-6">
+                    <i class="bi bi-check-circle"></i> In Stock (@Model.StockQuantity)
+                </span>
+            }
+            else
+            {
+                <span class="badge bg-danger fs-6">Out of Stock</span>
+            }
+        </div>
+
+        @if (Model.IsInStock)
+        {
+            <div class="d-flex gap-3 align-items-center mt-3">
+                <input type="number" value="1" min="1" max="@Model.StockQuantity"
+                       class="form-control" style="width: 80px;" />
+                <button class="btn btn-primary flex-grow-1">
+                    <i class="bi bi-cart-plus"></i> Add to Cart
+                </button>
+            </div>
+        }
+    </div>
+</div>

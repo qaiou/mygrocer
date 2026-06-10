@@ -1,0 +1,28 @@
+﻿@model MYGROCER.Models.ProductsModel
+@{
+    ViewData["Title"] = "Delete Product";
+}
+
+<div class="container mt-4" style="max-width: 500px;">
+    <div class="card border-danger p-4 text-center">
+        <div class="fs-1 mb-3">⚠️</div>
+        <h4 class="fw-bold text-danger mb-1">Delete Product?</h4>
+        <p class="text-muted mb-4">This action cannot be undone.</p>
+
+        <div class="bg-light rounded p-3 mb-4 text-start">
+            <p class="mb-1"><strong>Name:</strong> @Model.Name</p>
+            <p class="mb-1"><strong>Category:</strong> @Model.Category</p>
+            <p class="mb-0"><strong>Price:</strong> RM @Model.BasePrice.ToString("F2")</p>
+        </div>
+
+        <form asp-action="Delete" asp-route-id="@Model.ProductId" method="post">
+            @Html.AntiForgeryToken()
+            <div class="d-flex gap-2 justify-content-center">
+                <button type="submit" class="btn btn-danger px-4">
+                    <i class="bi bi-trash"></i> Yes, Delete
+                </button>
+                <a asp-action="AdminIndex" class="btn btn-outline-secondary px-4">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>

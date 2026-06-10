@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - MYGROCER</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet" />
+    <style>
+        :root {
+            --green: #2e7d32;
+            --green-light: #4caf50;
+            --orange: #f57c00;
+        }
+        .navbar { background: var(--green) !important; }
+        .navbar-brand { font-weight: 800; font-size: 1.5rem; color: white !important; }
+        .navbar-brand span { color: #ffcc02; }
+        .nav-link { color: rgba(255,255,255,0.9) !important; }
+        .nav-link:hover { color: #ffcc02 !important; }
+        .btn-primary { background: var(--green); border-color: var(--green); }
+        .btn-primary:hover { background: #1b5e20; border-color: #1b5e20; }
+        .card { border: none; box-shadow: 0 2px 8px rgba(0,0,0,0.1); transition: transform 0.2s; }
+        .card:hover { transform: translateY(-4px); }
+        .badge-category { background: var(--green-light); color: white; font-size: 0.75rem; }
+        .price-tag { color: var(--orange); font-size: 1.2rem; font-weight: 700; }
+        .out-of-stock { opacity: 0.6; }
+        .hero-section { background: linear-gradient(135deg, var(--green), #1b5e20); color: white; padding: 60px 0; }
+        footer { background: #1b5e20; color: white; padding: 20px 0; margin-top: 60px; }
+        .singleton-badge { background: #e8f5e9; border: 1px solid var(--green-light); border-radius: 4px; padding: 4px 10px; font-size: 0.75rem; color: var(--green); }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand" asp-controller="Home" asp-action="Index">
+                MY<span>GROCER</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+                <span class="navbar-toggler-icon" style="filter:invert(1)"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navMenu">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Home" asp-action="Index">
+                            <i class="bi bi-house"></i> Home
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Products" asp-action="Index">
+                            <i class="bi bi-grid"></i> Products
+                        </a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Products" asp-action="AdminIndex">
+                            <i class="bi bi-shield-lock"></i> Admin
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">
+                            <i class="bi bi-cart3"></i> Cart
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link btn btn-outline-light btn-sm ms-2 px-3" asp-controller="Account" asp-action="Login">
+                            <i class="bi bi-person"></i> Login
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show m-3" role="alert">
+                <i class="bi bi-check-circle"></i> @TempData["Success"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        }
+        @RenderBody()
+    </main>
+
+    <footer>
+        <div class="container text-center">
+            <p class="mb-0">© 2025 MYGROCER — CSE 6234 Software Design | Group 1 TT3L</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

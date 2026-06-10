@@ -1,4 +1,4 @@
-﻿@model IEnumerable<MYGROCER.Models.ProductsModel>
+@model IEnumerable<MYGROCER.Models.ProductsModel>
 @{
     ViewData["Title"] = "Home";
     var categories = ViewBag.Categories as List<string?> ?? new List<string?>();
@@ -27,25 +27,11 @@
                     <div style="font-size: 2.5rem">
                         @switch (cat)
                         {
-                            case "Fresh Produce":
-                                <text>🥬</text>
-                                break;
-                            case "Packaged Goods":
-
-                                <text>📦</text>
-                                break;
-                            case "Beverages":
-
-                                <text>🥤</text>
-                                break;
-                            case "Household":
-
-                                <text>🏠</text>
-                                break;
-                            default:
-
-                                <text>🛍️</text>
-                                break;
+                            case "Fresh Produce": <text>🥬</text> break;
+                            case "Packaged Goods": <text>📦</text> break;
+                            case "Beverages": <text>🥤</text> break;
+                            case "Household": <text>🏠</text> break;
+                            default: <text>🛍️</text> break;
                         }
                     </div>
                     <small class="fw-semibold mt-1">@cat</small>
@@ -70,25 +56,11 @@
                     <div class="text-center pt-3" style="font-size: 3rem">
                         @switch (product.Category)
                         {
-                            case "Fresh Produce":
-                                <text>🥬</text>
-                                break;
-                            case "Packaged Goods":
-
-                                <text>📦</text>
-                                break;
-                            case "Beverages":
-
-                                <text>🥤</text>
-                                break;
-                            case "Household":
-
-                                <text>🧴</text>
-                                break;
-                            default:
-
-                                <text>🛍️</text>
-                                break;
+                            case "Fresh Produce": <text>🥬</text> break;
+                            case "Packaged Goods": <text>📦</text> break;
+                            case "Beverages": <text>🥤</text> break;
+                            case "Household": <text>🧴</text> break;
+                            default: <text>🛍️</text> break;
                         }
                     </div>
                     <div class="card-body p-2 text-center">

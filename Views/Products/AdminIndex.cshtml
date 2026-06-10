@@ -1,0 +1,108 @@
+@model IEnumerable<MYGROCER.Models.ProductsModel>
+@{
+    ViewData["Title"] = "Admin - Manage Products";
+    var singletonStatus = ViewBag.SingletonStatus as string;
+}
+
+<div class="container mt-4">
+
+    <!-- Admin Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3 class="fw-bold mb-1"><i class="bi bi-shield-lock text-success"></i> Admin Panel</h3>
+            <p class="text-muted mb-0">Manage product catalogue — Add, Edit, Delete items</p>
+        </div>
+        <a asp-action="Create" class="btn btn-success">
+            <i class="bi bi-plus-lg"></i> Add New Product
+        </a>
+    </div>
+
+    <!-- Singleton Pattern Status Box — for demonstration/presentation -->
+    @if (!string.IsNullOrEmpty(singletonStatus))
+    {
+        <div class="alert alert-success d-flex align-items-center mb-4" role="alert">
+            <i class="bi bi-database-check me-2 fs-5"></i>
+            <div>
+                <strong>Singleton Pattern Active:</strong>
+                <span class="ms-2 singleton-badge">@singletonStatus</span>
+            </div>
+        </div>
+    }
+
+    <!-- Search Bar -->
+    <form asp-action="AdminIndex" method="get" class="d-flex gap-2 mb-4" style="max-width: 400px;">
+        <input type="text" name="search" value="@ViewBag.CurrentSearch"
+               class="form-control" placeholder="Search by name or category..." />
+        <button type="submit" class="btn btn-primary"><i class="bi bi-search"></i></button>
+        @if (!string.IsNullOrEmpty(ViewBag.CurrentSearch as string))
+        {
+            <a asp-action="AdminIndex" class="btn btn-outline-secondary"><i class="bi bi-x"></i></a>
+        }
+    </form>
+
+    <!-- Products Table -->
+    @if (!Model.Any())
+    {
+        <div class="text-center py-5">
+            <div class="fs-1">📭</div>
+            <h5>No products found.</h5>
+            <a asp-action="Create" class="btn btn-success mt-2">Add First Product</a>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-success">
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Category</th>
+                        <th>Price (RM)</th>
+                        <th>Stock</th>
+                        <th>Status</th>
+                        <th class="text-center">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var product in Model)
+                    {
+                        <tr>
+                            <td class="text-muted small">#@product.ProductId</td>
+                            <td>
+                                <strong>@product.Name</strong>
+                                <br /><small class="text-muted">@product.Description</small>
+                            </td>
+                            <td><span class="badge badge-category">@product.Category</span></td>
+                            <td class="price-tag">@product.BasePrice.ToString("F2")</td>
+                            <td>@product.StockQuantity</td>
+                            <td>
+                                @if (product.IsInStock)
+                                {
+                                    <span class="badge bg-success">In Stock</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-danger">Out of Stock</span>
+                                }
+                            </td>
+                            <td class="text-center">
+                                <div class="d-flex gap-2 justify-content-center">
+                                    <a asp-action="Edit" asp-route-id="@product.ProductId"
+                                       class="btn btn-warning btn-sm">
+                                        <i class="bi bi-pencil"></i> Edit
+                                    </a>
+                                    <a asp-action="Delete" asp-route-id="@product.ProductId"
+                                       class="btn btn-danger btn-sm">
+                                        <i class="bi bi-trash"></i> Delete
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <p class="text-muted small">Total: @Model.Count() product(s)</p>
+    }
+</div>

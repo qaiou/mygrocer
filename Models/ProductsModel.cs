@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MYGROCER.Models
@@ -44,4 +44,3 @@ namespace MYGROCER.Models
         public bool IsInStock => StockQuantity > 0;
     }
 }
-
