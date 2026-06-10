@@ -7,30 +7,24 @@ namespace MYGROCER.Controllers
 {
     // ═══════════════════════════════════════════════════════════════════════════
     // BUSINESS LOGIC LAYER — ProductsController
-    //
-    // Handles all product-related logic:
-    //   - Public product listing (homepage + products page)
-    //   - Admin CRUD: Add, Update, Delete products
-    //
-    // Also demonstrates Singleton usage by logging DB access via singleton.
     // ═══════════════════════════════════════════════════════════════════════════
     public class ProductsController : Controller
     {
         private readonly AppDbContext _db;
         private readonly DbConnectionSingleton _singleton;
 
-        // Constructor Injection — ASP.NET DI provides these automatically
+        // Constructor Injection
         public ProductsController(AppDbContext db, DbConnectionSingleton singleton)
         {
             _db = db;
             _singleton = singleton;
         }
 
-        // ─── PUBLIC: Product Listing Page ───────────────────────────────────
+        // ─── PUBLIC: Product Listing Page (With Price + Category Filters) ───
         // GET: /Products
-        public async Task<IActionResult> Index(string? category, string? search)
+        public async Task<IActionResult> Index(string? category, string? search, decimal? minPrice, decimal? maxPrice)
         {
-            // Singleton access logged (demonstrates pattern for presentation)
+            // Singleton access logged
             var status = _singleton.GetStatus();
             ViewBag.SingletonStatus = status;
 
@@ -45,14 +39,25 @@ namespace MYGROCER.Controllers
             if (!string.IsNullOrEmpty(search))
                 query = query.Where(p => p.Name!.Contains(search) || p.Description!.Contains(search));
 
-            // Get all distinct categories for the filter buttons
+            // Filter by minimum price if provided
+            if (minPrice.HasValue)
+                query = query.Where(p => p.BasePrice >= minPrice.Value);
+
+            // Filter by maximum price if provided
+            if (maxPrice.HasValue)
+                query = query.Where(p => p.BasePrice <= maxPrice.Value);
+
+            // Get all distinct categories for the filter buttons/sidebar
             ViewBag.Categories = await _db.Products
                 .Select(p => p.Category)
                 .Distinct()
                 .ToListAsync();
 
+            // Store current filter values in ViewBag to keep UI state
             ViewBag.CurrentCategory = category;
             ViewBag.CurrentSearch = search;
+            ViewBag.MinPrice = minPrice;
+            ViewBag.MaxPrice = maxPrice;
 
             var products = await query.ToListAsync();
             return View(products);

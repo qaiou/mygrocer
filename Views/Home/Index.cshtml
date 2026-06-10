@@ -3,6 +3,7 @@
     ViewData["Title"] = "Home";
     var categories = ViewBag.Categories as List<string?> ?? new List<string?>();
 }
+
 <div class="hero-section position-relative overflow-hidden"
      style="background: url('https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=2000&auto=format&fit=crop') no-repeat center center;
     background-size: cover;
@@ -17,140 +18,117 @@
                  class="me-3 rounded shadow-sm"
                  style="height: 70px; width: auto; object-fit: contain; background: rgba(255,255,255,0.1); padding: 5px;"
                  onerror="this.style.display='none'" />
-
-            <h1 class="display-4 fw-bold m-0 tracking-tight" style="font-family: 'Poppins', sans-serif;">
-                <span class="text-white">MY</span><span style="color: #ffc107 ;">GROCER</span>
+            <h1 class="display-4 fw-bold m-0" style="font-family: 'Poppins', sans-serif;">
+                <span class="text-white">MY</span><span style="color: #ffc107;">GROCER</span>
             </h1>
         </div>
-
-        <p class="lead mb-4 mx-auto style-subtext" style="max-width: 700px; font-size: 1.25rem; text-shadow: 1px 1px 3px rgba(0,0,0,0.5);">
+        <p class="lead mb-4 mx-auto" style="max-width: 700px; font-size: 1.25rem; text-shadow: 1px 1px 3px rgba(0,0,0,0.5);">
             Your one-stop online grocery store. Fresh produce, packaged goods, beverages and more — delivered directly to your door.
         </p>
-
         <a asp-controller="Products" asp-action="Index" class="btn btn-warning btn-lg fw-bold px-5 shadow-sm rounded-pill">
             <i class="bi bi-grid-fill"></i> Shop Now
         </a>
     </div>
 </div>
-<!-- Category Quick Links -->
-<div class="container mt-5">
-    <h4 class="fw-bold mb-3">Shop by Category</h4>
-    <div class="row g-3 mb-5">
-        @foreach (var cat in categories)
-        {
-            <div class="col-6 col-md-3">
-                <a asp-controller="Products" asp-action="Index" asp-route-category="@cat"
-                   class="card h-100 text-decoration-none text-dark text-center p-3">
-                    <div style="font-size: 2.5rem">
-                        @switch (cat)
-                        {
-                            case "Fruits":
-                                <text>🍎</text>
-                                break;
-                            case "Vegetables":
 
-                                <text>🥦</text>
-                                break;
-                            case "Dairy":
-
-                                <text>🥛</text>
-                                break;
-                            case "Bakery":
-
-                                <text>🍞</text>
-                                break;
-                            case "Beverages":
-
-                                <text>🧃</text>
-                                break;
-                            case "Snacks":
-
-                                <text>🍿</text>
-                                break;
-                            case "Frozen":
-
-                                <text>🧊</text>
-                                break;
-                            case "Meat":
-
-                                <text>🥩</text>
-                                break;
-                            default:
-
-                                <text>🛒</text>
-                                break;
-                        }
-                    </div>
-                    <small class="fw-semibold mt-1">@cat</small>
-                </a>
+<div class="container my-5 text-center">
+    <h4 class="fw-bold mb-2" style="color: #2b2b2b; letter-spacing: -0.5px;">Shop by Category</h4>
+    <p class="text-muted small mb-4">Find everything you need instantly</p>
+    
+    <div class="row justify-content-center g-3">
+        <div class="col-6 col-sm-3 col-md-2">
+            <div class="p-3 bg-white shadow-sm border border-light-subtle category-box text-center" style="border-radius: 16px; cursor: pointer; transition: all 0.2s;">
+                <div class="fs-2 mb-2">🥬</div>
+                <div class="fw-bold text-dark small">Fresh Produce</div>
             </div>
-        }
+        </div>
+        <div class="col-6 col-sm-3 col-md-2">
+            <div class="p-3 bg-white shadow-sm border border-light-subtle category-box text-center" style="border-radius: 16px; cursor: pointer; transition: all 0.2s;">
+                <div class="fs-2 mb-2">📦</div>
+                <div class="fw-bold text-dark small">Packaged Goods</div>
+            </div>
+        </div>
+        <div class="col-6 col-sm-3 col-md-2">
+            <div class="p-3 bg-white shadow-sm border border-light-subtle category-box text-center" style="border-radius: 16px; cursor: pointer; transition: all 0.2s;">
+                <div class="fs-2 mb-2">💊</div>
+                <div class="fw-bold text-dark small">Health</div>
+            </div>
+        </div>
+        <div class="col-6 col-sm-3 col-md-2">
+            <div class="p-3 bg-white shadow-sm border border-light-subtle category-box text-center" style="border-radius: 16px; cursor: pointer; transition: all 0.2s;">
+                <div class="fs-2 mb-2">🐾</div>
+                <div class="fw-bold text-dark small">Pets</div>
+            </div>
+        </div>
+        <div class="col-6 col-sm-3 col-md-2">
+            <div class="p-3 bg-white shadow-sm border border-light-subtle category-box text-center" style="border-radius: 16px; cursor: pointer; transition: all 0.2s;">
+                <div class="fs-2 mb-2">🧃</div>
+                <div class="fw-bold text-dark small">Food & Beverages</div>
+            </div>
+        </div>
+        <div class="col-6 col-sm-3 col-md-2">
+            <div class="p-3 bg-white shadow-sm border border-light-subtle category-box text-center" style="border-radius: 16px; cursor: pointer; transition: all 0.2s;">
+                <div class="fs-2 mb-2">🧹</div>
+                <div class="fw-bold text-dark small">Home & Living</div>
+            </div>
+        </div>
     </div>
+</div>
 
-    <!-- Featured Products -->
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h4 class="fw-bold mb-0">Featured Products</h4>
-        <a asp-controller="Products" asp-action="Index" class="btn btn-outline-success btn-sm">
+<div class="container my-5">
+    <div class="d-flex justify-content-between align-items-end mb-4">
+        <div>
+            <h4 class="fw-bold mb-1" style="color: #2b2b2b; letter-spacing: -0.5px;">Featured Products</h4>
+            <p class="text-muted small mb-0">Our top picks for your daily essentials</p>
+        </div>
+        <a asp-controller="Products" asp-action="Index" class="btn btn-outline-success btn-sm fw-bold px-3" style="border-radius: 20px;">
             View All <i class="bi bi-arrow-right"></i>
         </a>
     </div>
 
-    <div class="row g-4">
+    <div class="row row-cols-2 row-cols-md-4 row-cols-lg-6 g-3">
         @foreach (var product in Model)
         {
-            <div class="col-6 col-md-4 col-lg-2">
-                <div class="card h-100">
-                    <div class="text-center pt-3" style="font-size: 3rem">
-                        @switch (product.Category)
-                        {
-                            case "Fruits":
-                                <text>🍎</text>
-                                break;
-                            case "Vegetables":
+            <div class="col">
+                <div class="card h-100 border-0 shadow-sm product-card position-relative" style="border-radius: 12px; overflow: hidden; transition: all 0.2s; background: #ffffff;">
+                    
+                    @if(product.IsInStock)
+                    {
+                        <span class="badge bg-success-subtle text-success position-absolute top-0 start-0 m-2 border border-success-subtle" style="font-size: 0.65rem; z-index: 2;">Available</span>
+                    }
 
-                                <text>🥦</text>
-                                break;
-                            case "Dairy":
-
-                                <text>🥛</text>
-                                break;
-                            case "Bakery":
-
-                                <text>🍞</text>
-                                break;
-                            case "Beverages":
-
-                                <text>🧃</text>
-                                break;
-                            case "Snacks":
-
-                                <text>🍿</text>
-                                break;
-                            case "Frozen":
-
-                                <text>🧊</text>
-                                break;
-                            case "Meat":
-
-                                <text>🥩</text>
-                                break;
-                            default:
-
-                                <text>🛒</text>
-                                break;
-                        }
+                    <div class="p-3 bg-light d-flex align-items-center justify-content-center" style="height: 140px;">
+                        <img src="@product.ImageUrl" alt="@product.Name" 
+                             style="max-height: 100%; max-width: 100%; object-fit: contain;" 
+                             onerror="this.src='/images/trolley.jpeg'" />
                     </div>
-                    <div class="card-body p-2 text-center">
-                        <p class="card-title fw-semibold small mb-1">@product.Name</p>
-                        @if (!product.IsInStock)
-                        {
-                            <span class="badge bg-secondary">Out of Stock</span>
-                        }
-                        else
-                        {
-                            <a asp-controller="Products" asp-action="Details" asp-route-id="@product.ProductId"
-                               class="btn btn-primary btn-sm w-100 mt-1">View</a>
-                        }
+
+                    <div class="card-body p-2 d-flex flex-column justify-content-between">
+                        <div>
+                            <p class="card-title fw-semibold text-dark small mb-1 text-truncate" style="font-size: 0.85rem;" title="@product.Name">
+                                @product.Name
+                            </p>
+                            
+                            <div class="d-flex align-items-center my-1">
+                                <span class="fw-bold text-success" style="font-size: 1rem;">RM 18.90</span>
+                            </div>
+                        </div>
+
+                        <div class="mt-2">
+                            @if (!product.IsInStock)
+                            {
+                                <button class="btn btn-secondary btn-sm w-100 fw-semibold disabled" style="border-radius: 6px; font-size: 0.75rem;">
+                                    <i class="bi bi-x-circle"></i> Out of Stock
+                                </button>
+                            }
+                            else
+                            {
+                                <a asp-controller="Products" asp-action="Details" asp-route-id="@product.ProductId"
+                                   class="btn btn-success btn-sm w-100 fw-semibold" style="border-radius: 6px; font-size: 0.75rem;">
+                                    <i class="bi bi-basket3"></i> Add to Cart
+                                </a>
+                            }
+                        </div>
                     </div>
                 </div>
             </div>
@@ -158,26 +136,102 @@
     </div>
 </div>
 
-<!-- Why MYGROCER section -->
-<div class="bg-light mt-5 py-5">
-    <div class="container text-center">
-        <h4 class="fw-bold mb-4">Why Shop With Us?</h4>
-        <div class="row g-4">
-            <div class="col-md-4">
-                <div class="fs-1">🚚</div>
-                <h6 class="fw-bold">Fast Delivery</h6>
-                <p class="text-muted small">Same-day delivery available for orders before 12pm.</p>
+<div class="container mt-5 pt-4">
+    <div class="text-center mb-5">
+        <h3 class="fw-bold text-uppercase tracking-wide" style="font-family: 'Poppins', sans-serif; color: #2e7d32;">
+            Why Shop With MY<span style="color: #ffcc02;">GROCER</span>?
+        </h3>
+        <p class="text-muted small max-width-600 mx-auto">
+            Experience the ultimate digital hypermarket designed to bring fresh, affordable, and high-quality essentials directly to your doorstep.
+        </p>
+    </div>
+
+    <div class="row g-4 justify-content-center">
+        <div class="col-md-4">
+            <div class="card h-100 border-0 p-4 text-center text-md-start" style="background: #f8f9fa; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); transition: transform 0.3s, box-shadow 0.3s;" onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 8px 20px rgba(0,0,0,0.06)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.03)'">
+                <div class="d-inline-flex align-items-center justify-content-center bg-white rounded-circle mb-3 shadow-sm" style="width: 60px; height: 60px;">
+                    <i class="bi bi-lightning-charge-fill fs-2" style="color: #f57c00;"></i>
+                </div>
+                <h5 class="fw-bold mb-2" style="color: #2e7d32;">Hyper-Local Swift Delivery</h5>
+                <p class="text-muted small mb-0" style="line-height: 1.6;">
+                    Enjoy ultra-fast, same-day delivery via our instant logistics fleet. Place your grocery orders before 2:00 PM and receive your fresh produce straight to your kitchen within hours.
+                </p>
             </div>
-            <div class="col-md-4">
-                <div class="fs-1">💳</div>
-                <h6 class="fw-bold">Secure Payment</h6>
-                <p class="text-muted small">FPX, Credit/Debit Card, and Cash on Delivery supported.</p>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card h-100 border-0 p-4 text-center text-md-start" style="background: #f8f9fa; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); transition: transform 0.3s, box-shadow 0.3s;" onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 8px 20px rgba(0,0,0,0.06)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.03)'">
+                <div class="d-inline-flex align-items-center justify-content-center bg-white rounded-circle mb-3 shadow-sm" style="width: 60px; height: 60px;">
+                    <i class="bi bi-shield-check fs-2" style="color: #2e7d32;"></i>
+                </div>
+                <h5 class="fw-bold mb-2" style="color: #2e7d32;">Bank-Grade Secure Checkout</h5>
+                <p class="text-muted small mb-0" style="line-height: 1.6;">
+                    Shop with total peace of mind. Our encrypted checkout system fully supports secure Malaysian financial gateways including FPX Online Banking, major Credit/Debit Cards, and seamless e-wallets.
+                </p>
             </div>
-            <div class="col-md-4">
-                <div class="fs-1">🥇</div>
-                <h6 class="fw-bold">Best Prices</h6>
-                <p class="text-muted small">MYDIN-inspired pricing — affordable everyday essentials.</p>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card h-100 border-0 p-4 text-center text-md-start" style="background: #f8f9fa; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); transition: transform 0.3s, box-shadow 0.3s;" onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 8px 20px rgba(0,0,0,0.06)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.03)'">
+                <div class="d-inline-flex align-items-center justify-content-center bg-white rounded-circle mb-3 shadow-sm" style="width: 60px; height: 60px;">
+                    <i class="bi bi-tags-fill fs-2" style="color: #ffcc02;"></i>
+                </div>
+                <h5 class="fw-bold mb-2" style="color: #2e7d32;">Unbeatable Everyday Value</h5>
+                <p class="text-muted small mb-0" style="line-height: 1.6;">
+                    Get access to affordable, premium-tier everyday essentials and household supplies without premium price tags.
+                </p>
             </div>
         </div>
     </div>
 </div>
+
+<div class="container border-top border-secondary pt-5 mt-5 pb-4" style="font-size: 0.85rem; opacity: 0.95;">
+    <div class="row text-center text-md-start align-items-center">
+        
+        <div class="col-md-8 mb-4 mb-md-0">
+            <h6 class="fw-bold text-uppercase mb-3" style="color: #ffcc02; font-family: 'Poppins', sans-serif; letter-spacing: 0.5px;">Delivery Partners</h6>
+            <div class="d-flex flex-wrap gap-3 justify-content-center justify-content-md-start align-items-center">
+                
+                <div class="d-inline-flex align-items-center mb-1">
+                    <span class="text-muted small me-2" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px;">Instant:</span>
+                    <img src="~/images/grab.jpeg" alt="Grab" class="img-thumbnail p-1" style="height: 28px; width: auto; object-fit: contain; background: white; border-radius: 4px;" asp-append-version="true" />
+                    <img src="~/images/lalamove.jpeg" alt="Lalamove" class="img-thumbnail p-1 ms-2" style="height: 28px; width: auto; object-fit: contain; background: white; border-radius: 4px;" asp-append-version="true" />
+                    <img src="~/images/fd.jpg" alt="Foodpanda" class="img-thumbnail p-1 ms-2" style="height: 28px; width: auto; object-fit: contain; background: white; border-radius: 4px;" asp-append-version="true" />
+                </div>
+                
+                <div class="vr text-secondary d-none d-md-block mx-2" style="height: 20px;"></div>
+                
+                <div class="d-inline-flex align-items-center mb-1">
+                    <span class="text-muted small me-2" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px;">Standard:</span>
+                    <img src="~/images/jnt.jpeg" alt="J&T" class="img-thumbnail p-1" style="height: 28px; width: auto; object-fit: contain; background: white; border-radius: 4px;" asp-append-version="true" />
+                    <img src="~/images/poslaju.jpeg" alt="Pos Laju" class="img-thumbnail p-1 ms-2" style="height: 28px; width: auto; object-fit: contain; background: white; border-radius: 4px;" asp-append-version="true" />
+                    <img src="~/images/ninjavan.jpeg" alt="Ninja Van" class="img-thumbnail p-1 ms-2" style="height: 28px; width: auto; object-fit: contain; background: white; border-radius: 4px;" asp-append-version="true" />
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 text-center text-md-end">
+            <h6 class="fw-bold text-uppercase mb-3" style="color: #ffcc02; font-family: 'Poppins', sans-serif; letter-spacing: 0.5px;">Payment Methods</h6>
+            <div class="d-flex flex-wrap gap-2 justify-content-center justify-content-md-end align-items-center">
+                <img src="~/images/fpx.jpeg" alt="FPX" class="img-thumbnail p-1" style="height: 28px; width: auto; object-fit: contain; background: white; border-radius: 4px;" asp-append-version="true" />
+                <img src="~/images/visa.jpeg" alt="Visa" class="img-thumbnail p-1" style="height: 28px; width: auto; object-fit: contain; background: white; border-radius: 4px;" asp-append-version="true" />
+                <img src="~/images/mastercard.jpeg" alt="Mastercard" class="img-thumbnail p-1" style="height: 28px; width: auto; object-fit: contain; background: white; border-radius: 4px;" asp-append-version="true" />
+                <img src="~/images/tng.jpeg" alt="Touch 'n Go eWallet" class="img-thumbnail p-1 shadow-sm" style="height: 38px; width: auto; object-fit: contain; background: white; border-radius: 4px; border: 1px solid #dee2e6;" asp-append-version="true" />
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<style>
+    .category-box:hover {
+        transform: translateY(-4px);
+        border-color: #198754 !important;
+        background-color: #f0fdf4 !important;
+        box-shadow: 0 4px 12px rgba(25, 135, 84, 0.1) !important;
+    }
+    .product-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 24px rgba(0,0,0,0.08) !important;
+    }
+</style>
