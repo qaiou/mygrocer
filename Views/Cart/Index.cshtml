@@ -1,0 +1,126 @@
+﻿@model MYGROCER.Models.CartModel
+
+@{
+    ViewData["Title"] = "Shopping Cart";
+}
+
+<h1 class="mb-4">@ViewData["Title"]</h1>
+
+@if (Model == null || Model.CartItems == null || !Model.CartItems.Any())
+{
+    <div class="alert alert-info">Your shopping cart is empty. <a asp-area="" asp-controller="Products" asp-action="Index">Browse products</a>.</div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-bordered align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>Product</th>
+                    <th class="text-end">Price</th>
+                    <th class="text-center">Quantity</th>
+                    <th class="text-end">Subtotal</th>
+                    <th class="text-center">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.CartItems)
+                {
+                    var subtotal = item.PricePerUnit * item.Quantity;
+                    <tr data-product-id="@item.ProductId">
+                        <td>
+                            <div class="fw-bold">@item.Name</div>
+                        </td>
+                        <td class="text-end">@String.Format("{0:C}", item.PricePerUnit)</td>
+                        <td class="text-center" style="width:170px;">
+                            <div class="input-group input-group-sm justify-content-center">
+                                <button class="btn btn-outline-secondary btn-decrease" type="button">-</button>
+                                <input type="number" min="0" step="1" class="form-control text-center qty-input" value="@item.Quantity" style="max-width:80px;" />
+                                <button class="btn btn-outline-secondary btn-increase" type="button">+</button>
+                            </div>
+                        </td>
+                        <td class="text-end subtotal">@String.Format("{0:C}", subtotal)</td>
+                        <td class="text-center">
+                            <form asp-controller="Cart" asp-action="Remove" method="post" class="d-inline">
+                                <input type="hidden" name="productId" value="@item.ProductId" />
+                                <button type="submit" class="btn btn-sm btn-outline-danger">Remove</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="3" class="text-end fw-bold">Total</td>
+                    <td class="text-end fw-bold" id="cart-total">@String.Format("{0:C}", Model.TotalPrice)</td>
+                    <td></td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+
+    <div class="d-flex justify-content-between">
+        <div>
+            <a asp-area="" asp-controller="Products" asp-action="Index" class="btn btn-link">Continue shopping</a>
+        </div>
+        <div>
+            <form asp-controller="Cart" asp-action="Update" method="post" id="update-cart-form" class="d-inline">
+                <!-- Quantity inputs will be posted by JS appended to this form -->
+                <button type="submit" class="btn btn-outline-secondary me-2">Update cart</button>
+            </form>
+            <form asp-controller="Cart" asp-action="Checkout" method="post" class="d-inline">
+                <button type="submit" class="btn btn-primary">Checkout</button>
+            </form>
+        </div>
+    </div>
+
+    @section Scripts {
+        <script>
+            (function () {
+                function parseCurrency(text) {
+                    // remove any nondigit except dot and minus
+                    return parseFloat(text.replace(/[^0-9.-]+/g, '')) || 0;
+                }
+
+                function updateTotals() {
+                    var total = 0;
+                    document.querySelectorAll('tr[data-product-id]').forEach(function (row) {
+                        var priceText = row.querySelector('td:nth-child(2)').textContent;
+                        var price = parseCurrency(priceText);
+                        var qty = parseFloat(row.querySelector('.qty-input').value) || 0;
+                        var subtotal = price * qty;
+                        row.querySelector('.subtotal').textContent = subtotal.toLocaleString(undefined, { style: 'currency', currency: 'USD' });
+                        total += subtotal;
+                    });
+                    document.getElementById('cart-total').textContent = total.toLocaleString(undefined, { style: 'currency', currency: 'USD' });
+                }
+
+                document.addEventListener('click', function (e) {
+                    if (e.target.matches('.btn-increase') || e.target.matches('.btn-decrease')) {
+                        var container = e.target.closest('tr');
+                        var input = container.querySelector('.qty-input');
+                        var current = parseFloat(input.value) || 0;
+                        if (e.target.matches('.btn-increase')) input.value = current + 1;
+                        else input.value = Math.max(0, current - 1);
+                        updateTotals();
+                    }
+                });
+
+                // When Update cart is clicked, collect quantities into the form
+                document.getElementById('update-cart-form').addEventListener('submit', function (ev) {
+                    // remove any previous hidden inputs
+                    Array.from(this.querySelectorAll('input[name="items"]')).forEach(function (n) { n.remove(); });
+                    document.querySelectorAll('tr[data-product-id]').forEach(function (row) {
+                        var productId = row.getAttribute('data-product-id');
+                        var qty = row.querySelector('.qty-input').value || '0';
+                        var hidden = document.createElement('input');
+                        hidden.type = 'hidden';
+                        hidden.name = 'items';
+                        hidden.value = productId + ':' + qty;
+                        document.getElementById('update-cart-form').appendChild(hidden);
+                    });
+                });
+            })();
+        </script>
+    }
+}
