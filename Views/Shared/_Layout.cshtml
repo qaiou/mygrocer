@@ -34,43 +34,43 @@
         <div class="container">
             <a class="navbar-brand" asp-controller="Home" asp-action="Index">
                 MY<span>GROCER</span>
-            </a>
+                </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
                 <span class="navbar-toggler-icon" style="filter:invert(1)"></span>
-            </button>
+                </button>
             <div class="collapse navbar-collapse" id="navMenu">
                 <ul class="navbar-nav me-auto">
-                    <li class="nav-item">
+                        <li class="nav-item">
                         <a class="nav-link" asp-controller="Home" asp-action="Index">
                             <i class="bi bi-house"></i> Home
                         </a>
-                    </li>
-                    <li class="nav-item">
+                        </li>
+                        <li class="nav-item">
                         <a class="nav-link" asp-controller="Products" asp-action="Index">
                             <i class="bi bi-grid"></i> Products
                         </a>
-                    </li>
-                </ul>
+                        </li>
+                    </ul>
                 <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
+                        <li class="nav-item">
                         <a class="nav-link" asp-controller="Products" asp-action="AdminIndex">
                             <i class="bi bi-shield-lock"></i> Admin
-                        </a>
-                    </li>
-                    <li class="nav-item">
+                            </a>
+                        </li>
+                        <li class="nav-item">
                         <a class="nav-link" href="#">
                             <i class="bi bi-cart3"></i> Cart
                         </a>
-                    </li>
-                    <li class="nav-item">
+                        </li>
+                        <li class="nav-item">
                         <a class="nav-link btn btn-outline-light btn-sm ms-2 px-3" asp-controller="Account" asp-action="Login">
                             <i class="bi bi-person"></i> Login
                         </a>
-                    </li>
-                </ul>
+                        </li>
+                    </ul>
+                </div>
             </div>
-        </div>
-    </nav>
+        </nav>
 
     <main>
         @if (TempData["Success"] != null)
@@ -80,8 +80,9 @@
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
         }
-        @RenderBody()
-    </main>
+            @RenderBody()
+        </main>
+    </div>
 
     <footer>
         <div class="container text-center">

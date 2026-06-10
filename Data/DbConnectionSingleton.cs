@@ -1,4 +1,4 @@
-namespace MYGROCER.Data
+﻿namespace MYGROCER.Data
 {
     // ═══════════════════════════════════════════════════════════════════════════
     // DESIGN PATTERN 1 — SINGLETON PATTERN

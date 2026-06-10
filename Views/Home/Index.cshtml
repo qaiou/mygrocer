@@ -4,13 +4,6 @@
     var categories = ViewBag.Categories as List<string?> ?? new List<string?>();
 }
 
-<!-- Hero Section -->
-<div class="hero-section">
-    <div class="container text-center">
-        <h1 class="display-4 fw-bold mb-3">🛒 Welcome to MYGROCER</h1>
-        <p class="lead mb-4">Your one-stop online grocery store. Fresh produce, packaged goods, beverages and more — delivered to your door.</p>
-        <a asp-controller="Products" asp-action="Index" class="btn btn-warning btn-lg fw-bold px-5">
-            <i class="bi bi-grid"></i> Shop Now
         </a>
     </div>
 </div>
@@ -23,15 +16,9 @@
         {
             <div class="col-6 col-md-3">
                 <a asp-controller="Products" asp-action="Index" asp-route-category="@cat"
-                   class="card text-center p-3 text-decoration-none text-dark">
                     <div style="font-size: 2.5rem">
                         @switch (cat)
                         {
-                            case "Fresh Produce": <text>🥬</text> break;
-                            case "Packaged Goods": <text>📦</text> break;
-                            case "Beverages": <text>🥤</text> break;
-                            case "Household": <text>🏠</text> break;
-                            default: <text>🛍️</text> break;
                         }
                     </div>
                     <small class="fw-semibold mt-1">@cat</small>
@@ -52,24 +39,15 @@
         @foreach (var product in Model)
         {
             <div class="col-6 col-md-4 col-lg-2">
-                <div class="card h-100 @(product.IsInStock ? "" : "out-of-stock")">
                     <div class="text-center pt-3" style="font-size: 3rem">
                         @switch (product.Category)
                         {
-                            case "Fresh Produce": <text>🥬</text> break;
-                            case "Packaged Goods": <text>📦</text> break;
-                            case "Beverages": <text>🥤</text> break;
-                            case "Household": <text>🧴</text> break;
-                            default: <text>🛍️</text> break;
                         }
                     </div>
                     <div class="card-body p-2 text-center">
-                        <span class="badge badge-category mb-1">@product.Category</span>
                         <p class="card-title fw-semibold small mb-1">@product.Name</p>
-                        <p class="price-tag mb-1">RM @product.BasePrice.ToString("F2")</p>
                         @if (!product.IsInStock)
                         {
-                            <span class="badge bg-secondary">Out of Stock</span>
                         }
                         else
                         {
