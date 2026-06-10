@@ -3,11 +3,35 @@
     ViewData["Title"] = "Home";
     var categories = ViewBag.Categories as List<string?> ?? new List<string?>();
 }
+<div class="hero-section position-relative overflow-hidden"
+     style="background: url('https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=2000&auto=format&fit=crop') no-repeat center center;
+    background-size: cover;
+    padding: 100px 0;
+    min-height: 450px;">
 
+    <div class="position-absolute top-0 start-0 w-100 h-100" style="background: rgba(0, 0, 0, 0.55); z-index: 1;"></div>
+
+    <div class="container text-center position-relative text-white" style="z-index: 2;">
+        <div class="d-flex align-items-center justify-content-center mb-3">
+            <img src="~/images/trolley.jpeg" alt="MYGROCER Logo"
+                 class="me-3 rounded shadow-sm"
+                 style="height: 70px; width: auto; object-fit: contain; background: rgba(255,255,255,0.1); padding: 5px;"
+                 onerror="this.style.display='none'" />
+
+            <h1 class="display-4 fw-bold m-0 tracking-tight" style="font-family: 'Poppins', sans-serif;">
+                <span class="text-white">MY</span><span style="color: #ffc107 ;">GROCER</span>
+            </h1>
+        </div>
+
+        <p class="lead mb-4 mx-auto style-subtext" style="max-width: 700px; font-size: 1.25rem; text-shadow: 1px 1px 3px rgba(0,0,0,0.5);">
+            Your one-stop online grocery store. Fresh produce, packaged goods, beverages and more — delivered directly to your door.
+        </p>
+
+        <a asp-controller="Products" asp-action="Index" class="btn btn-warning btn-lg fw-bold px-5 shadow-sm rounded-pill">
+            <i class="bi bi-grid-fill"></i> Shop Now
         </a>
     </div>
 </div>
-
 <!-- Category Quick Links -->
 <div class="container mt-5">
     <h4 class="fw-bold mb-3">Shop by Category</h4>
@@ -16,9 +40,45 @@
         {
             <div class="col-6 col-md-3">
                 <a asp-controller="Products" asp-action="Index" asp-route-category="@cat"
+                   class="card h-100 text-decoration-none text-dark text-center p-3">
                     <div style="font-size: 2.5rem">
                         @switch (cat)
                         {
+                            case "Fruits":
+                                <text>🍎</text>
+                                break;
+                            case "Vegetables":
+
+                                <text>🥦</text>
+                                break;
+                            case "Dairy":
+
+                                <text>🥛</text>
+                                break;
+                            case "Bakery":
+
+                                <text>🍞</text>
+                                break;
+                            case "Beverages":
+
+                                <text>🧃</text>
+                                break;
+                            case "Snacks":
+
+                                <text>🍿</text>
+                                break;
+                            case "Frozen":
+
+                                <text>🧊</text>
+                                break;
+                            case "Meat":
+
+                                <text>🥩</text>
+                                break;
+                            default:
+
+                                <text>🛒</text>
+                                break;
                         }
                     </div>
                     <small class="fw-semibold mt-1">@cat</small>
@@ -39,15 +99,52 @@
         @foreach (var product in Model)
         {
             <div class="col-6 col-md-4 col-lg-2">
+                <div class="card h-100">
                     <div class="text-center pt-3" style="font-size: 3rem">
                         @switch (product.Category)
                         {
+                            case "Fruits":
+                                <text>🍎</text>
+                                break;
+                            case "Vegetables":
+
+                                <text>🥦</text>
+                                break;
+                            case "Dairy":
+
+                                <text>🥛</text>
+                                break;
+                            case "Bakery":
+
+                                <text>🍞</text>
+                                break;
+                            case "Beverages":
+
+                                <text>🧃</text>
+                                break;
+                            case "Snacks":
+
+                                <text>🍿</text>
+                                break;
+                            case "Frozen":
+
+                                <text>🧊</text>
+                                break;
+                            case "Meat":
+
+                                <text>🥩</text>
+                                break;
+                            default:
+
+                                <text>🛒</text>
+                                break;
                         }
                     </div>
                     <div class="card-body p-2 text-center">
                         <p class="card-title fw-semibold small mb-1">@product.Name</p>
                         @if (!product.IsInStock)
                         {
+                            <span class="badge bg-secondary">Out of Stock</span>
                         }
                         else
                         {
