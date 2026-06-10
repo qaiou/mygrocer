@@ -22,6 +22,12 @@ namespace MYGROCER.Models
         [Column(TypeName = "decimal(20,2)")]
         public decimal BasePrice { get; set; }
 
+        [Required]
+        public int StockQuantity { get; set; }
+
+        [Required]
+        public Boolean InStock { get; set; }
+
 
     }
 }
