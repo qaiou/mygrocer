@@ -6,7 +6,7 @@
 
         public string? Name { get; set; }
 
-        public decimal BasePrice { get; set; }
+        public decimal PricePerUnit { get; set; }
 
         public decimal Quantity { get; set; }
     }
