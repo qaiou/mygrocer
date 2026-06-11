@@ -106,7 +106,7 @@
             }
     </style>
 </head>
-<body>
+<body class="d-flex flex-column min-vh-100">
     <nav class="navbar navbar-expand-lg">
         <div class="container-fluid px-4 d-flex align-items-center gap-0" style="height: 100%;">
 
@@ -179,7 +179,7 @@
             <!-- Right side actions -->
             <ul class="navbar-nav d-flex flex-row align-items-center gap-1 flex-shrink-0">
                 <li class="nav-item">
-                    <a class="nav-link px-2" asp-controller="ShoppingCart" asp-action="Index">
+                    <a class="nav-link px-2" asp-controller="Cart" asp-action="Index">
                         <i class="bi bi-cart3"></i> Cart
                     </a>
                 </li>
@@ -199,8 +199,10 @@
         </div>
     </nav>
 
+    @RenderSection("Hero", required: false)
+
     <div class="container-fluid p-0">
-        <main role="main">
+        <main role="main" class="flex-grow-1">
             @if (TempData["Success"] != null)
             {
                 <div class="alert alert-success alert-dismissible fade show m-3" role="alert">
@@ -212,8 +214,8 @@
         </main>
     </div>
 
-    <footer>
-        <div class="container text-center">
+    <footer class="mt-auto" style="background:#1b5e20; color: white;">
+        <div class="container text-center py-3">
             <p class="mb-0">© 2026 MYGROCER Holdings Berhad — CSE 6234 Software Design | Group 1 TT3L</p>
         </div>
     </footer>
