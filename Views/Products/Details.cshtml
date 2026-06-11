@@ -42,12 +42,15 @@
 
         @if (Model.IsInStock)
         {
-            <div class="d-flex gap-3 align-items-center mt-3">
-                <input type="number" value="1" min="1" max="@Model.StockQuantity"
-                       class="form-control" style="width: 80px;" />
-                <button class="btn btn-primary flex-grow-1">
-                    <i class="bi bi-cart-plus"></i> Add to Cart
-                </button>
+        <div class="d-flex gap-3 align-items-center mt-3">
+                <form asp-controller="Cart" asp-action="Add" method="post" class="d-flex w-100 gap-3">
+                    <input type="hidden" name="productId" value="@Model.ProductId" />
+                    <input type="number" name="quantity" value="1" min="1" max="@Model.StockQuantity"
+                           class="form-control" style="width: 80px;" />
+                    <button type="submit" class="btn btn-primary flex-grow-1">
+                        <i class="bi bi-cart-plus"></i> Add to Cart
+                    </button>
+                </form>
             </div>
         }
     </div>

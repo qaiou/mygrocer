@@ -4,32 +4,34 @@
     var categories = ViewBag.Categories as List<string?> ?? new List<string?>();
 }
 
-<div class="hero-section position-relative overflow-hidden"
-     style="background: url('https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=2000&auto=format&fit=crop') no-repeat center center;
-    background-size: cover;
-    padding: 100px 0;
-    min-height: 450px;">
+@section Hero {
+    <div class="hero-section position-relative overflow-hidden"
+         style="background: url('https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=2000&auto=format&fit=crop') no-repeat center center;
+        background-size: cover;
+        padding: 100px 0;
+        min-height: 450px;">
 
-    <div class="position-absolute top-0 start-0 w-100 h-100" style="background: rgba(0, 0, 0, 0.55); z-index: 1;"></div>
+        <div class="position-absolute top-0 start-0 w-100 h-100" style="background: rgba(0, 0, 0, 0.55); z-index: 1;"></div>
 
-    <div class="container text-center position-relative text-white" style="z-index: 2;">
-        <div class="d-flex align-items-center justify-content-center mb-3">
-            <img src="~/images/trolley.jpeg" alt="MYGROCER Logo"
-                 class="me-3 rounded shadow-sm"
-                 style="height: 70px; width: auto; object-fit: contain; background: rgba(255,255,255,0.1); padding: 5px;"
-                 onerror="this.style.display='none'" />
-            <h1 class="display-4 fw-bold m-0" style="font-family: 'Poppins', sans-serif;">
-                <span class="text-white">MY</span><span style="color: #ffc107;">GROCER</span>
-            </h1>
+        <div class="container text-center position-relative text-white" style="z-index: 2;">
+            <div class="d-flex align-items-center justify-content-center mb-3">
+                <img src="~/images/trolley.jpeg" alt="MYGROCER Logo"
+                     class="me-3 rounded shadow-sm"
+                     style="height: 70px; width: auto; object-fit: contain; background: rgba(255,255,255,0.1); padding: 5px;"
+                     onerror="this.style.display='none'" />
+                <h1 class="display-4 fw-bold m-0" style="font-family: 'Poppins', sans-serif;">
+                    <span class="text-white">MY</span><span style="color: #ffc107;">GROCER</span>
+                </h1>
+            </div>
+            <p class="lead mb-4 mx-auto" style="max-width: 700px; font-size: 1.25rem; text-shadow: 1px 1px 3px rgba(0,0,0,0.5);">
+                Your one-stop online grocery store. Fresh produce, packaged goods, beverages and more — delivered directly to your door.
+            </p>
+            <a asp-controller="Products" asp-action="Index" class="btn btn-warning btn-lg fw-bold px-5 shadow-sm rounded-pill">
+                <i class="bi bi-grid-fill"></i> Shop Now
+            </a>
         </div>
-        <p class="lead mb-4 mx-auto" style="max-width: 700px; font-size: 1.25rem; text-shadow: 1px 1px 3px rgba(0,0,0,0.5);">
-            Your one-stop online grocery store. Fresh produce, packaged goods, beverages and more — delivered directly to your door.
-        </p>
-        <a asp-controller="Products" asp-action="Index" class="btn btn-warning btn-lg fw-bold px-5 shadow-sm rounded-pill">
-            <i class="bi bi-grid-fill"></i> Shop Now
-        </a>
     </div>
-</div>
+}
 
 <div class="container my-5 text-center">
     <h4 class="fw-bold mb-2" style="color: #2b2b2b; letter-spacing: -0.5px;">Shop by Category</h4>
