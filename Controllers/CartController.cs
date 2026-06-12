@@ -18,6 +18,14 @@ namespace MYGROCER.Controllers
             _db = db;
         }
 
+        // GET: /Cart/Checkout
+        [HttpGet]
+        public IActionResult Checkout()
+        {
+            var cart = GetCartFromSession();
+            return View(cart);
+        }
+
         private CartModel GetCartFromSession()
         {
             var json = HttpContext.Session.GetString(CART_SESSION_KEY);
@@ -139,13 +147,42 @@ namespace MYGROCER.Controllers
         // POST: /Cart/Checkout
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Checkout()
+        public async Task<IActionResult> Checkout(string paymentMethod, [FromForm] Dictionary<string, string?> details)
         {
-            // for now, simply clear the cart and show success
-            var cart = new CartModel { CartItems = new List<CartItemModel>(), TotalPrice = 0m };
-            SaveCartToSession(cart);
-            TempData["Success"] = "Checkout completed. Thank you for your order!";
-            return RedirectToAction("Index", "Products");
+
+            // Redirect to the GET Checkout page to show confirmation/summary
+            return RedirectToAction("Checkout");
+
+            var cart = GetCartFromSession();
+            var amount = cart.TotalPrice;
+
+            // Use the payment factory from DI
+            var factory = HttpContext.RequestServices.GetService(typeof(MYGROCER.Services.Payments.PaymentFactory)) as MYGROCER.Services.Payments.PaymentFactory;
+            if (factory == null)
+            {
+                TempData["Success"] = "Payment service unavailable.";
+                return RedirectToAction("Index");
+            }
+
+            var processor = factory.Create(paymentMethod);
+            if (processor == null)
+            {
+                TempData["Success"] = "Invalid payment method.";
+                return RedirectToAction("Index");
+            }
+
+            var result = await processor.ProcessPaymentAsync(amount, details ?? new Dictionary<string, string?>());
+            if (!result.Success)
+            {
+                TempData["Success"] = "Payment failed: " + result.Message;
+                return RedirectToAction("Index");
+            }
+
+            // Clear cart on successful payment
+            var empty = new CartModel { CartItems = new List<CartItemModel>(), TotalPrice = 0m };
+            SaveCartToSession(empty);
+            TempData["Success"] = "Payment successful. Transaction " + result.TransactionId;
+            
         }
     }
 }

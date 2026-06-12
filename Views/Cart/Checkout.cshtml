@@ -1,0 +1,95 @@
+@model MYGROCER.Models.CartModel
+
+@{
+    ViewData["Title"] = "Checkout";
+}
+
+<div class="container py-4" style="max-width: 720px;">
+    <h2 class="mb-3">Checkout</h2>
+
+    <div class="card p-3 mb-3">
+        <h5 class="mb-2">Order Summary</h5>
+        <ul class="list-group list-group-flush mb-2">
+            @foreach(var item in Model.CartItems ?? new List<MYGROCER.Models.CartItemModel>())
+            {
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="fw-bold">@item.Name</div>
+                        <div class="text-muted small">Qty: @item.Quantity</div>
+                    </div>
+                    <div class="text-end">RM @String.Format("{0:F2}", item.PricePerUnit * item.Quantity)</div>
+                </li>
+            }
+        </ul>
+        <div class="d-flex justify-content-between mt-3">
+            <div class="fw-bold">Total</div>
+            <div class="fw-bold">RM @Model.TotalPrice.ToString("F2")</div>
+        </div>
+    </div>
+
+    <div class="card p-3">
+        <h5 class="mb-2">Payment</h5>
+        <form asp-controller="Cart" asp-action="Checkout" method="post">
+            <div class="mb-3">
+                <label class="form-label">Payment Method</label>
+                <select name="paymentMethod" id="paymentMethod" class="form-select">
+                    <option value="fpx">FPX (Bank transfer)</option>
+                    <option value="card">Card</option>
+                </select>
+            </div>
+
+            <div id="fpx-fields" style="display:block;">
+                <div class="mb-3">
+                    <label class="form-label">Select Bank</label>
+                    <select name="bank" class="form-select">
+                        <option value="maybank">Maybank</option>
+                        <option value="cimb">CIMB</option>
+                        <option value="public">Public Bank</option>
+                        <option value="rhb">RHB</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="card-fields" style="display:none;">
+                <div class="mb-3">
+                    <label class="form-label">Card Number</label>
+                    <input type="text" name="cardNumber" class="form-control" />
+                </div>
+                <div class="row g-2">
+                    <div class="col-6">
+                        <label class="form-label">Expiry</label>
+                        <input type="text" name="expiry" class="form-control" placeholder="MM/YY" />
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label">CVV</label>
+                        <input type="text" name="cvv" class="form-control" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-3 d-flex justify-content-between">
+                <a asp-controller="Cart" asp-action="Index" class="btn btn-outline-secondary">Back to cart</a>
+                <button type="submit" class="btn btn-success">Pay RM @Model.TotalPrice.ToString("F2")</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        (function(){
+            var pm = document.getElementById('paymentMethod');
+            var fpx = document.getElementById('fpx-fields');
+            var card = document.getElementById('card-fields');
+            pm.addEventListener('change', function(){
+                if(pm.value === 'card'){
+                    card.style.display = 'block';
+                    fpx.style.display = 'none';
+                } else {
+                    card.style.display = 'none';
+                    fpx.style.display = 'block';
+                }
+            });
+        })();
+    </script>
+}
