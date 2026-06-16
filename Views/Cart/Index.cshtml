@@ -68,9 +68,14 @@ else
                 <!-- Quantity inputs will be posted by JS appended to this form -->
                 <button type="submit" class="btn btn-outline-secondary me-2">Update cart</button>
             </form>
-            <form asp-controller="Cart" asp-action="Checkout" method="post" class="d-inline">
-                <button type="submit" class="btn btn-primary">Checkout</button>
-            </form>
+
+            <div class="d-inline-block ms-2">
+                <form asp-controller="Cart" asp-action="Checkout" method="post" id="checkout-form" class="row g-2 align-items-center">
+                    <div class="col-auto">
+                        <button type="submit" class="btn btn-primary btn-sm">Checkout</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 
@@ -92,6 +97,21 @@ else
                         row.querySelector('.subtotal').textContent = subtotal.toLocaleString(undefined, { style: 'currency', currency: 'MYR' });
                         total += subtotal;
                     });
+
+                // toggle card details on payment method change
+                var pm = document.getElementById('paymentMethod');
+                var cardDetails = document.getElementById('card-details');
+                if (pm) {
+                    pm.addEventListener('change', function () {
+                        if (pm.value === 'card') cardDetails.style.display = 'block';
+                        else cardDetails.style.display = 'none';
+                    });
+                }
+
+                // serialize checkout form into hidden inputs if needed
+                document.getElementById('checkout-form').addEventListener('submit', function (ev) {
+                    // nothing special for now; server reads paymentMethod and any posted fields
+                });
                     document.getElementById('cart-total').textContent = total.toLocaleString(undefined, { style: 'currency', currency: 'MYR' });
                 }
 

@@ -28,6 +28,11 @@ builder.Services.AddSession(options =>
     options.Cookie.IsEssential = true;
 });
 
+// Register payment processors and factory (Factory pattern)
+builder.Services.AddTransient<MYGROCER.Services.Payments.FpxProcessor>();
+builder.Services.AddTransient<MYGROCER.Services.Payments.CardProcessor>();
+builder.Services.AddSingleton<MYGROCER.Services.Payments.PaymentFactory>();
+
 var app = builder.Build();
 
 // ═══════════════════════════════════════════════
