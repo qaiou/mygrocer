@@ -1,8 +1,9 @@
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using MYGROCER.Data;
 using MYGROCER.Models;
 using System.Linq;
-using Microsoft.AspNetCore.Http;
 
 namespace MYGROCER.Controllers
 {
@@ -70,5 +71,24 @@ namespace MYGROCER.Controllers
             HttpContext.Session.Clear();
             return RedirectToAction("Index", "Home");
         }
+
+        [HttpGet]
+        public IActionResult MyOrders()
+        {
+            var customerId = HttpContext.Session.GetInt32("CustomerID");
+            if (customerId == null)
+            {
+                return RedirectToAction("Login");
+            }
+
+            var orders = _context.Orders
+                .Where(o => o.CustomerId == customerId.Value)
+                .Include(o => o.Items)
+                .OrderByDescending(o => o.OrderDate)
+                .ToList();
+
+            return View(orders);
+        }
+
     }
 }

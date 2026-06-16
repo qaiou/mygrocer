@@ -280,5 +280,12 @@ namespace MYGROCER.Controllers
 
             return View(orders);
         }
+
+        [HttpGet]
+        public IActionResult DbInfo()
+        {
+            var cs = _db.Database.GetDbConnection().ConnectionString;
+            return Content(cs);
+        }
     }
 }
