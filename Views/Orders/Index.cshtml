@@ -1,15 +1,15 @@
-@model IEnumerable<MYGROCER.Models.Order>
+﻿@model IEnumerable<MYGROCER.Models.Order>
 
 @{
-    ViewData["Title"] = "My Orders";
+    ViewData["Title"] = "Orders (Admin)";
 }
 
 <div class="container py-4">
-    <h3 class="mb-3">My Orders</h3>
+    <h3 class="mb-3">Orders</h3>
 
     @if (!Model.Any())
     {
-        <div class="alert alert-info">You have no orders yet.</div>
+        <div class="alert alert-info">No orders found.</div>
     }
     else
     {
@@ -35,6 +35,7 @@
                                         "Pending" => "bg-secondary",
                                         _ => "bg-secondary"
                                     };
+
                                     <li class="list-group-item d-flex justify-content-between align-items-center">
                                         <div>
                                             <div class="fw-bold">@it.ProductName</div>
@@ -43,7 +44,26 @@
                                                 <span class="badge @badgeClass">@status</span>
                                             </div>
                                         </div>
-                                        <div class="fw-semibold">RM @((it.UnitPrice * it.Quantity).ToString("F2"))</div>
+
+                                        <div class="text-end">
+                                            <div class="mb-1 fw-semibold">RM @((it.UnitPrice * it.Quantity).ToString("F2"))</div>
+
+                                            <form asp-controller="Admin" asp-action="UpdateShipping" method="post" class="d-inline-flex align-items-center">
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="orderItemId" value="@it.OrderItemId" />
+                                                @{
+                                                    var pendingSelected = status == "Pending";
+                                                    var shippedSelected = status == "Shipped";
+                                                    var deliveredSelected = status == "Delivered";
+                                                }
+                                                <select name="status" class="form-select form-select-sm me-2" style="width:140px;">
+                                                    <option value="Pending" selected='@(pendingSelected ? "selected" : null)'>Pending</option>
+                                                    <option value="Shipped" selected='@(shippedSelected ? "selected" : null)'>Shipped</option>
+                                                    <option value="Delivered" selected='@(deliveredSelected ? "selected" : null)'>Delivered</option>
+                                                </select>
+                                                <button type="submit" class="btn btn-sm btn-outline-primary">Save</button>
+                                            </form>
+                                        </div>
                                     </li>
                                 }
                             </ul>

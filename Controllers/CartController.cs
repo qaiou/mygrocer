@@ -247,7 +247,8 @@ namespace MYGROCER.Controllers
                     ProductId = i.ProductId,
                     ProductName = i.Name,
                     UnitPrice = i.PricePerUnit,
-                    Quantity = i.Quantity
+                    Quantity = i.Quantity,
+                    ShippingStatus = "Pending"
                 }).ToList()
             };
 

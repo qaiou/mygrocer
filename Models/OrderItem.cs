@@ -16,5 +16,7 @@ namespace MYGROCER.Models
         public decimal UnitPrice { get; set; }
 
         public decimal Quantity { get; set; }
+
+        public string? ShippingStatus { get; set; } = "Pending";
     }
 }
