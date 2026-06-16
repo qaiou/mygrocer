@@ -14,7 +14,7 @@ namespace MYGROCER.Data
 
         // Each DbSet = one table in the database
         public DbSet<ProductsModel> Products { get; set; }
-
+        public DbSet<UserModel> Users { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             //product
