@@ -50,14 +50,16 @@ namespace MYGROCER.Controllers
         public IActionResult Login(string email, string password)
         {
             var user = _context.Users.FirstOrDefault(u => u.Email == email && u.Password == password);
+            var isAjax = string.Equals(Request.Headers["X-Requested-With"], "XMLHttpRequest", StringComparison.OrdinalIgnoreCase);
             if (user != null)
             {
                 HttpContext.Session.SetInt32("CustomerID", user.UserId);
                 HttpContext.Session.SetString("CustomerName", user.FullName);
-                
+                if (isAjax) return Json(new { success = true });
                 return RedirectToAction("Index", "Home");
             }
-            
+
+            if (isAjax) return Json(new { success = false, message = "Invalid email or password." });
             ViewBag.Error = "Invalid email or password.";
             return View();
         }

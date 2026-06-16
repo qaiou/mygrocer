@@ -15,6 +15,8 @@ namespace MYGROCER.Data
         // Each DbSet = one table in the database
         public DbSet<ProductsModel> Products { get; set; }
         public DbSet<UserModel> Users { get; set; }
+        public DbSet<Order> Orders { get; set; }
+        public DbSet<OrderItem> OrderItems { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             //product
@@ -86,6 +88,23 @@ namespace MYGROCER.Data
         ImageUrl = "https://aytacfood.co.uk/cdn/shop/products/sunquick-tropical-700ml-858288_1024x.jpg?v=1707828103"
     }
 );
+
+            modelBuilder.Entity<Order>(eb =>
+            {
+                eb.HasMany(o => o.Items).WithOne().HasForeignKey(i => i.OrderId);
+            });
+            // Seed a default user for testing/login (password stored in plain text for demo only)
+            modelBuilder.Entity<UserModel>().HasData(
+                new UserModel
+                {
+                    UserId = 1,
+                    FullName = "Demo Customer",
+                    Email = "demo@mygrocer.local",
+                    Phone = "0123456789",
+                    Password = "password123",
+                    Role = "Customer"
+                }
+            );
         }
     }
 }

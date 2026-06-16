@@ -5,6 +5,11 @@
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+		 <EnableNETAnalyzers>False</EnableNETAnalyzers>
+  		 <AnalysisLevel>none</AnalysisLevel>
+ 		  <RunAnalyzersDuringBuild>false</RunAnalyzersDuringBuild>
+  		  <RunAnalyzersDuringLiveAnalysis>false</RunAnalyzersDuringLiveAnalysis>
+   		 <RunAnalyzers>false</RunAnalyzers>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -18,3 +23,4 @@
 	</ItemGroup>
 
 </Project>
+

@@ -3,6 +3,7 @@ using MYGROCER.Data;
 using Microsoft.Extensions.DependencyInjection;
 using MYGROCER.Models;
 using System.Text.Json;
+using System.Linq;
 using Microsoft.EntityFrameworkCore;
 
 namespace MYGROCER.Controllers
@@ -76,6 +77,51 @@ namespace MYGROCER.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Add(int productId, int quantity = 1)
         {
+            // Require the user to be logged in (CustomerID stored in session by AccountController)
+            var customerId = HttpContext.Session.GetInt32("CustomerID");
+            if (!customerId.HasValue)
+            {
+                TempData["Error"] = "Please log in before adding items to your cart.";
+                return RedirectToAction("Login", "Account");
+            }
+
+            var product = await _db.Products.FindAsync(productId);
+            if (product == null) return NotFound();
+
+            var cart = GetCartFromSession();
+            var existing = cart.CartItems!.FirstOrDefault(i => i.ProductId == productId);
+            if (existing != null)
+            {
+                existing.Quantity += quantity;
+                existing.PricePerUnit = product.BasePrice;
+            }
+            else
+            {
+                cart.CartItems.Add(new CartItemModel
+                {
+                    ProductId = productId,
+                    Name = product.Name,
+                    PricePerUnit = product.BasePrice,
+                    Quantity = quantity
+                });
+            }
+
+            SaveCartToSession(cart);
+            TempData["Success"] = $"Added '{product.Name}' to cart.";
+            return RedirectToAction("Index");
+        }
+
+        // GET: /Cart/Add (fallback link-based add to cart to avoid nested forms in views)
+        [HttpGet]
+        public async Task<IActionResult> Add(int productId, int quantity = 1, bool ajax = false)
+        {
+            var customerId = HttpContext.Session.GetInt32("CustomerID");
+            if (!customerId.HasValue)
+            {
+                TempData["Error"] = "Please log in before adding items to your cart.";
+                return RedirectToAction("Login", "Account");
+            }
+
             var product = await _db.Products.FindAsync(productId);
             if (product == null) return NotFound();
 
@@ -150,8 +196,17 @@ namespace MYGROCER.Controllers
         public async Task<IActionResult> Checkout(string paymentMethod, [FromForm] Dictionary<string, string?> details)
         {
 
+            // Ensure user is logged in
+            var customerId = HttpContext.Session.GetInt32("CustomerID");
+            if (!customerId.HasValue)
+            {
+                TempData["Error"] = "Please log in to complete checkout.";
+                return RedirectToAction("Login", "Account");
+            }
+
             // Redirect to the GET Checkout page to show confirmation/summary
             return RedirectToAction("Checkout");
+
 
             var cart = GetCartFromSession();
             var amount = cart.TotalPrice;
@@ -178,11 +233,52 @@ namespace MYGROCER.Controllers
                 return RedirectToAction("Index");
             }
 
+            // Persist order
+            var order = new Order
+            {
+                CustomerId = HttpContext.Session.GetInt32("CustomerID") ?? 0,
+                OrderDate = DateTime.UtcNow,
+                PaymentMethod = paymentMethod,
+                TransactionId = result.TransactionId,
+                TotalAmount = amount,
+                Items = cart.CartItems?.Select(i => new OrderItem
+                {
+                    ProductId = i.ProductId,
+                    ProductName = i.Name,
+                    UnitPrice = i.PricePerUnit,
+                    Quantity = i.Quantity
+                }).ToList()
+            };
+
+            _db.Orders.Add(order);
+            await _db.SaveChangesAsync();
+
             // Clear cart on successful payment
             var empty = new CartModel { CartItems = new List<CartItemModel>(), TotalPrice = 0m };
             SaveCartToSession(empty);
             TempData["Success"] = "Payment successful. Transaction " + result.TransactionId;
-            
+
+            return RedirectToAction("MyOrders");
+        }
+
+        // GET: /Cart/MyOrders
+        [HttpGet]
+        public IActionResult MyOrders()
+        {
+            var customerId = HttpContext.Session.GetInt32("CustomerID");
+            if (!customerId.HasValue)
+            {
+                TempData["Error"] = "Please log in to view your orders.";
+                return RedirectToAction("Login", "Account");
+            }
+
+            var orders = _db.Orders
+                .Where(o => o.CustomerId == customerId.Value)
+                .Include(o => o.Items)
+                .OrderByDescending(o => o.OrderDate)
+                .ToList();
+
+            return View(orders);
         }
     }
 }
