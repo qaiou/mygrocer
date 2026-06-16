@@ -204,14 +204,15 @@ namespace MYGROCER.Controllers
                 return RedirectToAction("Login", "Account");
             }
 
-            // Redirect to the GET Checkout page to show confirmation/summary
-            return RedirectToAction("Checkout");
 
-
+            // Gather cart and amount to charge
             var cart = GetCartFromSession();
             var amount = cart.TotalPrice;
 
             // Use the payment factory from DI
+            // Collect form details into a dictionary (bank, cardNumber, expiry, cvv, etc.)
+            var detailsDict = Request.Form.ToDictionary(k => k.Key, v => (string?)v.Value.ToString());
+
             var factory = HttpContext.RequestServices.GetService(typeof(MYGROCER.Services.Payments.PaymentFactory)) as MYGROCER.Services.Payments.PaymentFactory;
             if (factory == null)
             {
@@ -226,7 +227,7 @@ namespace MYGROCER.Controllers
                 return RedirectToAction("Index");
             }
 
-            var result = await processor.ProcessPaymentAsync(amount, details ?? new Dictionary<string, string?>());
+            var result = await processor.ProcessPaymentAsync(amount, detailsDict ?? new Dictionary<string, string?>());
             if (!result.Success)
             {
                 TempData["Success"] = "Payment failed: " + result.Message;
