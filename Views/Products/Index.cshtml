@@ -152,6 +152,7 @@
                                                 <a asp-action="Details" asp-route-id="@product.ProductId"
                                                    class="btn btn-light btn-sm flex-grow-1 fw-semibold" style="border-radius: 6px;">Details</a>
                                                 <form asp-controller="Cart" asp-action="Add" method="post" class="m-0">
+                                                    @Html.AntiForgeryToken()
                                                     <input type="hidden" name="productId" value="@product.ProductId" />
                                                     <input type="hidden" name="quantity" value="1" />
                                                     <button type="submit" class="btn btn-success btn-sm px-3" style="border-radius: 6px;">

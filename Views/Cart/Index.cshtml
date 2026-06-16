@@ -70,11 +70,7 @@ else
             </form>
 
             <div class="d-inline-block ms-2">
-                <form asp-controller="Cart" asp-action="Checkout" method="post" id="checkout-form" class="row g-2 align-items-center">
-                    <div class="col-auto">
-                        <button type="submit" class="btn btn-primary btn-sm">Checkout</button>
-                    </div>
-                </form>
+                <a asp-controller="Cart" asp-action="Checkout" class="btn btn-primary btn-sm">Checkout</a>
             </div>
         </div>
     </div>

@@ -1,19 +1,22 @@
 using Microsoft.EntityFrameworkCore;
 using MYGROCER.Data;
+using System.IO;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // ═══════════════════════════════════════════════
 // DATABASE LAYER SETUP
-// Register EF Core with SQLite database
-// The .db file will be created automatically
+// Use an absolute path for the SQLite database so CLI, runtime and migrations
+// always target the same file (avoid relative-path confusion).
+// The .db file will be created automatically in the content root.
 // ═══════════════════════════════════════════════
+var dbPath = Path.Combine(builder.Environment.ContentRootPath, "mygrocer.db");
+var connectionString = $"Data Source={dbPath}";
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlite("Data Source=mygrocer.db"));
+    options.UseSqlite(connectionString));
 
 // Register Singleton connection manager
 // This demonstrates the Singleton Pattern for the database connection string
-var connectionString = "Data Source=mygrocer.db";
 var dbSingleton = DbConnectionSingleton.GetInstance(connectionString);
 builder.Services.AddSingleton(dbSingleton);
 
@@ -42,7 +45,7 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    db.Database.EnsureCreated(); // Creates tables if they don't exist
+    db.Database.Migrate();
 }
 
 if (!app.Environment.IsDevelopment())

@@ -30,6 +30,7 @@
     <div class="card p-3">
         <h5 class="mb-2">Payment</h5>
         <form asp-controller="Cart" asp-action="Checkout" method="post">
+            @Html.AntiForgeryToken()
             <div class="mb-3">
                 <label class="form-label">Payment Method</label>
                 <select name="paymentMethod" id="paymentMethod" class="form-select">

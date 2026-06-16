@@ -1,3 +1,4 @@
+@using Microsoft.AspNetCore.Http
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -30,7 +31,7 @@
 
             .nav-link {
                 color: rgba(255,255,255,0.9) !important;
-            }
+                }
 
                 .nav-link:hover {
                     color: #ffcc02 !important;
@@ -110,7 +111,6 @@
     <nav class="navbar navbar-expand-lg">
         <div class="container-fluid px-4 d-flex align-items-center gap-0" style="height: 100%;">
 
-            <!-- Brand -->
             <a class="navbar-brand flex-shrink-0 me-3" asp-controller="Home" asp-action="Index">
                 <img src="~/images/trolley.jpeg" alt="Trolley"
                      class="me-2 rounded"
@@ -119,7 +119,6 @@
                 MY<span>GROCER</span>
             </a>
 
-            <!-- Left Nav links -->
             <ul class="navbar-nav d-flex flex-row align-items-center gap-1 flex-shrink-0">
                 <li class="nav-item">
                     <a class="nav-link px-2" asp-controller="Home" asp-action="Index">
@@ -149,7 +148,6 @@
                 </li>
             </ul>
 
-            <!-- Search Bar — takes all remaining space -->
             <form asp-action="searchIndex" method="get"
                   class="d-flex align-items-center mx-3"
                   style="flex: 1; min-width: 0;">
@@ -174,9 +172,12 @@
                         </a>
                     }
                 </div>
+    <!-- Hidden antiforgery token for AJAX calls -->
+    <div style="display:none;">
+        @Html.AntiForgeryToken()
+    </div>
             </form>
 
-            <!-- Right side actions -->
             <ul class="navbar-nav d-flex flex-row align-items-center gap-1 flex-shrink-0">
                 <li class="nav-item">
                     <a class="nav-link px-2" asp-controller="Cart" asp-action="Index">
@@ -188,16 +189,64 @@
                         <i class="bi bi-shield-lock"></i> Admin
                     </a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link btn btn-outline-light btn-sm ms-1 px-3"
-                       asp-controller="Account" asp-action="Login">
-                        <i class="bi bi-person"></i> Login / Sign in
-                    </a>
-                </li>
+                
+                @{
+                    var customerName = Context.Session.GetString("CustomerName");
+                }
+
+                @if (!string.IsNullOrEmpty(customerName))
+                {
+                    <li class="nav-item dropdown">
+                        <a class="nav-link btn btn-outline-light btn-sm ms-1 px-3 dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-person-circle"></i> @customerName
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2">
+                            <li><a class="dropdown-item py-2" asp-controller="Cart" asp-action="MyOrders">My Orders</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item py-2 text-danger" asp-controller="Account" asp-action="Logout">Logout</a></li>
+                        </ul>
+                    </li>
+                }
+                else
+                {
+                    <li class="nav-item">
+                        <a class="nav-link btn btn-outline-light btn-sm ms-1 px-3" asp-controller="Account" asp-action="Login">
+                            <i class="bi bi-person"></i> Register / Log in
+                        </a>
+                    </li>
+                }
             </ul>
 
         </div>
     </nav>
+
+    <!-- Login Modal (reusable) - single instance -->
+    <div class="modal fade" id="loginModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Login</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="loginForm">
+                        <div class="mb-3">
+                            <label class="form-label">Email</label>
+                            <input type="email" name="email" class="form-control" required />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Password</label>
+                            <input type="password" name="password" class="form-control" required />
+                        </div>
+                        <div id="loginError" class="text-danger small mb-2" style="display:none;"></div>
+                        <div class="d-flex justify-content-end">
+                            <button type="submit" class="btn btn-primary">Log in</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 
     @RenderSection("Hero", required: false)
 
@@ -207,6 +256,14 @@
             {
                 <div class="alert alert-success alert-dismissible fade show m-3" role="alert">
                     <i class="bi bi-check-circle"></i> @TempData["Success"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+
+            @if (TempData["Error"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show m-3" role="alert">
+                    <i class="bi bi-exclamation-circle"></i> @TempData["Error"]
                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
             }
@@ -221,6 +278,65 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        (function(){
+            // login modal submit handler
+            var loginForm = document.getElementById('loginForm');
+            if(loginForm){
+                loginForm.addEventListener('submit', function(ev){
+                    ev.preventDefault();
+                    var formData = new FormData(loginForm);
+                    var tokenInput = document.querySelector('input[name="__RequestVerificationToken"]');
+                    var token = tokenInput ? tokenInput.value : '';
+                    fetch('/Account/Login', {
+                        method: 'POST',
+                        credentials: 'same-origin',
+                        headers: { 'X-Requested-With': 'XMLHttpRequest', 'RequestVerificationToken': token },
+                        body: new URLSearchParams(formData)
+                    })
+                    .then(function(response){
+                        // try parse JSON, otherwise fallback to text
+                        return response.text().then(function(text){
+                            try { return JSON.parse(text); }
+                            catch { return { success: false, message: text || 'Unexpected response from server' }; }
+                        });
+                    })
+                    .then(function(j){
+                        if(j && j.success){
+                            var modalEl = document.getElementById('loginModal');
+                            var modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+                            modal.hide();
+                            // slight delay to ensure session cookie is set
+                            setTimeout(function(){ location.reload(); }, 200);
+                        } else {
+                            var err = document.getElementById('loginError'); err.style.display = 'block'; err.textContent = j.message || 'Login failed';
+                        }
+                    }).catch(function(err){
+                        var e = document.getElementById('loginError'); e.style.display = 'block'; e.textContent = 'Network or server error';
+                    });
+                });
+            }
+
+            // global function to add to cart via AJAX
+            window.addToCartAjax = function(productId, qty){
+                var token = (document.querySelector('input[name="__RequestVerificationToken"]') || {}).value;
+                fetch('/Cart/Add', {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    headers: { 'X-Requested-With': 'XMLHttpRequest', 'Content-Type': 'application/x-www-form-urlencoded', 'RequestVerificationToken': token },
+                    body: 'productId=' + encodeURIComponent(productId) + '&quantity=' + encodeURIComponent(qty)
+                }).then(r => r.json()).then(function(j){
+                    if(j.requireLogin){
+                        var modalEl = document.getElementById('loginModal');
+                        var modal = new bootstrap.Modal(modalEl); modal.show();
+                    } else if(j.success){
+                        // optionally show a toast or reload cart link
+                        location.href = '/Cart/Index';
+                    }
+                });
+            };
+        })();
+    </script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
