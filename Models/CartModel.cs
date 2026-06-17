@@ -9,7 +9,7 @@ namespace MYGROCER.Models
 
         public int CustomerId { get; set; }
 
-        public List<CartItemModel>? CartItems { get; set; }
+        public List<CartItemModel> CartItems { get; set; } = new List<CartItemModel>();
 
         public decimal TotalPrice { get; set; }
     }

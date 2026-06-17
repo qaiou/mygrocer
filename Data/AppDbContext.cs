@@ -17,6 +17,9 @@ namespace MYGROCER.Data
         public DbSet<UserModel> Users { get; set; }
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderItem> OrderItems { get; set; }
+        public DbSet<CartModel> Carts { get; set; }
+        public DbSet<CartItemModel> CartItems { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             //product
@@ -93,6 +96,13 @@ namespace MYGROCER.Data
             {
                 eb.HasMany(o => o.Items).WithOne().HasForeignKey(i => i.OrderId);
             });
+            // configure cart -> cartitems
+            modelBuilder.Entity<CartModel>()
+                .HasMany(c => c.CartItems)
+                .WithOne(ci => ci.Cart)
+                .HasForeignKey(ci => ci.CartId)
+                .OnDelete(DeleteBehavior.Cascade);
+
             // Seed a default user for testing/login (password stored in plain text for demo only)
             modelBuilder.Entity<UserModel>().HasData(
                 new UserModel

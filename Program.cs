@@ -60,6 +60,19 @@ app.UseSession();
 app.UseAuthorization();
 app.MapStaticAssets();
 
+// Short routes for convenience (/Login and /Register)
+app.MapControllerRoute(
+    name: "login",
+    pattern: "Login",
+    defaults: new { controller = "Account", action = "Login" })
+    .WithStaticAssets();
+
+app.MapControllerRoute(
+    name: "register",
+    pattern: "Register",
+    defaults: new { controller = "Account", action = "Register" })
+    .WithStaticAssets();
+
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}")

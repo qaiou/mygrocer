@@ -20,11 +20,57 @@ namespace MYGROCER.Controllers
             _db = db;
         }
 
+        // GET: /Cart
+        // get cart for current context (DB for logged-in, session for guests)
+        private async Task<CartModel> GetCartAsync()
+        {
+            var customerId = HttpContext.Session.GetInt32("CustomerID");
+            if (customerId.HasValue)
+            {
+                // ensure a cart exists for this user
+                var cart = await _db.Carts
+                    .Include(c => c.CartItems)
+                    .FirstOrDefaultAsync(c => c.CustomerId == customerId.Value);
+
+                if (cart == null)
+                {
+                    cart = new CartModel
+                    {
+                        CustomerId = customerId.Value,
+                        CartItems = new List<CartItemModel>(),
+                        TotalPrice = 0m
+                    };
+                    _db.Carts.Add(cart);
+                    await _db.SaveChangesAsync();
+                }
+
+                cart.TotalPrice = cart.CartItems.Sum(i => i.PricePerUnit * i.Quantity);
+                return cart;
+            }
+
+            // guest: load from session
+            var json = HttpContext.Session.GetString(CART_SESSION_KEY);
+            if (string.IsNullOrEmpty(json))
+                return new CartModel { CartItems = new List<CartItemModel>(), TotalPrice = 0m };
+
+            try
+            {
+                var model = System.Text.Json.JsonSerializer.Deserialize<CartModel>(json);
+                if (model?.CartItems == null) model = new CartModel { CartItems = new List<CartItemModel>() };
+                model.TotalPrice = model.CartItems.Sum(i => i.PricePerUnit * i.Quantity);
+                return model!;
+            }
+            catch
+            {
+                return new CartModel { CartItems = new List<CartItemModel>(), TotalPrice = 0m };
+            }
+        }
+
         // GET: /Cart/Checkout
         [HttpGet]
-        public IActionResult Checkout()
+        public async Task<IActionResult> Checkout()
         {
-            var cart = GetCartFromSession();
+            var cart = await GetCartAsync();
             return View(cart);
         }
 
@@ -55,14 +101,58 @@ namespace MYGROCER.Controllers
             HttpContext.Session.SetString(CART_SESSION_KEY, json);
         }
 
-        // GET: /Cart
-        public IActionResult Index()
+        private async Task SaveCartAsync(CartModel cart)
         {
-            var cart = GetCartFromSession();
+            var customerId = HttpContext.Session.GetInt32("CustomerID");
+            if (customerId.HasValue)
+            {
+                // persist to DB
+                var dbCart = await _db.Carts.Include(c => c.CartItems)
+                    .FirstOrDefaultAsync(c => c.CustomerId == customerId.Value);
+
+                if (dbCart == null)
+                {
+                    dbCart = new CartModel { CustomerId = customerId.Value, CartItems = new List<CartItemModel>() };
+                    _db.Carts.Add(dbCart);
+                    await _db.SaveChangesAsync();
+                }
+
+                // Simple sync: remove existing items and re-add current ones
+                _db.CartItems.RemoveRange(dbCart.CartItems);
+                await _db.SaveChangesAsync();
+
+                foreach (var item in cart.CartItems ?? new List<CartItemModel>())
+                {
+                    var newItem = new CartItemModel
+                    {
+                        CartId = dbCart.CartId,
+                        ProductId = item.ProductId,
+                        Name = item.Name,
+                        PricePerUnit = item.PricePerUnit,
+                        Quantity = item.Quantity
+                    };
+                    _db.CartItems.Add(newItem);
+                }
+
+                dbCart.TotalPrice = cart.CartItems?.Sum(i => i.PricePerUnit * i.Quantity) ?? 0m;
+                await _db.SaveChangesAsync();
+                return;
+            }
+
+            // guest: save to session
+            cart.TotalPrice = cart.CartItems?.Sum(i => i.PricePerUnit * i.Quantity) ?? 0m;
+            var json = System.Text.Json.JsonSerializer.Serialize(cart);
+            HttpContext.Session.SetString(CART_SESSION_KEY, json);
+        }
+
+        // GET: /Cart
+        public async Task<IActionResult> Index()
+        {
+            var cart = await GetCartAsync();
             // make sure prices are up to date from DB when possible
             foreach (var item in cart.CartItems!)
             {
-                var product = _db.Products.Find(item.ProductId);
+                var product = await _db.Products.FindAsync(item.ProductId);
                 if (product != null)
                 {
                     item.PricePerUnit = product.BasePrice;
@@ -80,8 +170,13 @@ namespace MYGROCER.Controllers
         {
             // Require the user to be logged in (CustomerID stored in session by AccountController)
             var customerId = HttpContext.Session.GetInt32("CustomerID");
+            var isAjax = string.Equals(Request.Headers["X-Requested-With"], "XMLHttpRequest", StringComparison.OrdinalIgnoreCase);
             if (!customerId.HasValue)
             {
+                if (isAjax)
+                {
+                    return Json(new { requireLogin = true });
+                }
                 TempData["Error"] = "Please log in before adding items to your cart.";
                 return RedirectToAction("Login", "Account");
             }
@@ -89,7 +184,7 @@ namespace MYGROCER.Controllers
             var product = await _db.Products.FindAsync(productId);
             if (product == null) return NotFound();
 
-            var cart = GetCartFromSession();
+            var cart = await GetCartAsync();
             var existing = cart.CartItems!.FirstOrDefault(i => i.ProductId == productId);
             if (existing != null)
             {
@@ -107,8 +202,12 @@ namespace MYGROCER.Controllers
                 });
             }
 
-            SaveCartToSession(cart);
+            await SaveCartAsync(cart);
             TempData["Success"] = $"Added '{product.Name}' to cart.";
+            if (isAjax)
+            {
+                return Json(new { success = true });
+            }
             return RedirectToAction("Index");
         }
 
@@ -126,7 +225,7 @@ namespace MYGROCER.Controllers
             var product = await _db.Products.FindAsync(productId);
             if (product == null) return NotFound();
 
-            var cart = GetCartFromSession();
+            var cart = await GetCartAsync();
             var existing = cart.CartItems!.FirstOrDefault(i => i.ProductId == productId);
             if (existing != null)
             {
@@ -144,7 +243,7 @@ namespace MYGROCER.Controllers
                 });
             }
 
-            SaveCartToSession(cart);
+            await SaveCartAsync(cart);
             TempData["Success"] = $"Added '{product.Name}' to cart.";
             return RedirectToAction("Index");
         }
@@ -152,12 +251,12 @@ namespace MYGROCER.Controllers
         // POST: /Cart/Remove
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Remove(int productId)
+        public async Task<IActionResult> Remove(int productId)
         {
-            var cart = GetCartFromSession();
+            var cart = await GetCartAsync();
             var existing = cart.CartItems!.FirstOrDefault(i => i.ProductId == productId);
             if (existing != null) cart.CartItems.Remove(existing);
-            SaveCartToSession(cart);
+            await SaveCartAsync(cart);
             TempData["Success"] = "Item removed from cart.";
             return RedirectToAction("Index");
         }
@@ -165,9 +264,9 @@ namespace MYGROCER.Controllers
         // POST: /Cart/Update
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Update([FromForm] string[]? items)
+        public async Task<IActionResult> Update([FromForm] string[]? items)
         {
-            var cart = GetCartFromSession();
+            var cart = await GetCartAsync();
             if (items != null)
             {
                 // items are in format productId:qty
@@ -186,7 +285,7 @@ namespace MYGROCER.Controllers
                     }
                 }
             }
-            SaveCartToSession(cart);
+            await SaveCartAsync(cart);
             TempData["Success"] = "Cart updated.";
             return RedirectToAction("Index");
         }
@@ -207,7 +306,7 @@ namespace MYGROCER.Controllers
 
 
             // Gather cart and amount to charge
-            var cart = GetCartFromSession();
+            var cart = await GetCartAsync();
             if (cart.CartItems == null || !cart.CartItems.Any())
             {
                 TempData["Error"] = "Your cart is empty.";
@@ -328,7 +427,7 @@ namespace MYGROCER.Controllers
 
             // Clear cart on successful payment + stock update
             var empty = new CartModel { CartItems = new List<CartItemModel>(), TotalPrice = 0m };
-            SaveCartToSession(empty);
+            await SaveCartAsync(empty);
             TempData["Success"] = "Payment successful. Transaction " + result.TransactionId;
 
             return RedirectToAction("MyOrders");
