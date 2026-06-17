@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MYGROCER.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260616043830_InitialCreate")]
+    [Migration("20260617031437_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -62,6 +62,9 @@ namespace MYGROCER.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<decimal>("Quantity")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ShippingStatus")
                         .HasColumnType("TEXT");
 
                     b.Property<decimal>("UnitPrice")
