@@ -207,60 +207,124 @@ namespace MYGROCER.Controllers
 
             // Gather cart and amount to charge
             var cart = GetCartFromSession();
+            if (cart.CartItems == null || !cart.CartItems.Any())
+            {
+                TempData["Error"] = "Your cart is empty.";
+                return RedirectToAction("Index");
+            }
+
+            // Load current product stock for validation
+            var productIds = cart.CartItems.Select(i => i.ProductId).Distinct().ToList();
+            var dbProducts = await _db.Products
+                .Where(p => productIds.Contains(p.ProductId))
+                .ToDictionaryAsync(p => p.ProductId);
+
+            foreach (var item in cart.CartItems)
+            {
+                if (!dbProducts.TryGetValue(item.ProductId, out var prod))
+                {
+                    TempData["Error"] = $"Product not found: {item.Name}";
+                    return RedirectToAction("Index");
+                }
+
+                var qtyNeeded = Convert.ToInt32(item.Quantity);
+                if (prod.StockQuantity < qtyNeeded)
+                {
+                    TempData["Error"] = $"Insufficient stock for '{prod.Name}'. Available: {prod.StockQuantity}, requested: {qtyNeeded}.";
+                    return RedirectToAction("Index");
+                }
+            }
+
             var amount = cart.TotalPrice;
 
             // Use the payment factory from DI
-            // Collect form details into a dictionary (bank, cardNumber, expiry, cvv, etc.)
-            var detailsDict = Request.Form.ToDictionary(k => k.Key, v => (string?)v.Value.ToString());
-
             var factory = HttpContext.RequestServices.GetService(typeof(MYGROCER.Services.Payments.PaymentFactory)) as MYGROCER.Services.Payments.PaymentFactory;
             if (factory == null)
             {
-                TempData["Success"] = "Payment service unavailable.";
+                TempData["Error"] = "Payment service unavailable.";
                 return RedirectToAction("Index");
             }
 
             var processor = factory.Create(paymentMethod);
             if (processor == null)
             {
-                TempData["Success"] = "Invalid payment method.";
+                TempData["Error"] = "Invalid payment method.";
                 return RedirectToAction("Index");
             }
 
+            var detailsDict = Request.Form.ToDictionary(k => k.Key, v => (string?)v.Value.ToString());
             var result = await processor.ProcessPaymentAsync(amount, detailsDict ?? new Dictionary<string, string?>());
             if (!result.Success)
             {
-                TempData["Success"] = "Payment failed: " + result.Message;
+                TempData["Error"] = "Payment failed: " + result.Message;
                 return RedirectToAction("Index");
             }
 
-            // Persist order
-            var order = new Order
+            // Payment successful — update stock and persist order atomically
+            using (var tx = await _db.Database.BeginTransactionAsync())
             {
-                CustomerId = HttpContext.Session.GetInt32("CustomerID") ?? 0,
-                OrderDate = DateTime.UtcNow,
-                PaymentMethod = paymentMethod,
-                TransactionId = result.TransactionId,
-                TotalAmount = amount,
-                Items = cart.CartItems?.Select(i => new OrderItem
+                try
                 {
-                    ProductId = i.ProductId,
-                    ProductName = i.Name,
-                    UnitPrice = i.PricePerUnit,
-                    Quantity = i.Quantity,
-                    ShippingStatus = "Pending"
-                }).ToList()
-            };
+                    // Re-load products inside the transaction to avoid race conditions
+                    foreach (var item in cart.CartItems)
+                    {
+                        var product = await _db.Products.FindAsync(item.ProductId);
+                        if (product == null)
+                        {
+                            await tx.RollbackAsync();
+                            TempData["Error"] = $"Product not found during finalize: {item.Name}";
+                            return RedirectToAction("Index");
+                        }
 
-            _db.Orders.Add(order);
-            await _db.SaveChangesAsync();
+                        var qty = Convert.ToInt32(item.Quantity);
+                        if (product.StockQuantity < qty)
+                        {
+                            await tx.RollbackAsync();
+                            TempData["Error"] = $"Insufficient stock for '{product.Name}' during finalize. Please try again.";
+                            return RedirectToAction("Index");
+                        }
 
-            // Clear cart on successful payment
+                        product.StockQuantity -= qty;
+                        _db.Products.Update(product);
+                    }
+
+                    var order = new Order
+                    {
+                        CustomerId = customerId.Value,
+                        OrderDate = DateTime.UtcNow,
+                        PaymentMethod = paymentMethod,
+                        TransactionId = result.TransactionId,
+                        TotalAmount = amount,
+                        Items = cart.CartItems.Select(i => new OrderItem
+                        {
+                            ProductId = i.ProductId,
+                            ProductName = i.Name,
+                            UnitPrice = i.PricePerUnit,
+                            Quantity = i.Quantity,
+                            ShippingStatus = "Pending"
+                        }).ToList()
+                    };
+
+                    _db.Orders.Add(order);
+                    await _db.SaveChangesAsync();
+                    await tx.CommitAsync();
+                }
+                catch
+                {
+                    await tx.RollbackAsync();
+                    // Note: if payment already charged, you should implement refund logic here.
+                    TempData["Error"] = "An error occurred finalizing the order. Please contact support.";
+                    return RedirectToAction("Index");
+                }
+            }
+
+            // Clear cart on successful payment + stock update
             var empty = new CartModel { CartItems = new List<CartItemModel>(), TotalPrice = 0m };
             SaveCartToSession(empty);
             TempData["Success"] = "Payment successful. Transaction " + result.TransactionId;
 
             return RedirectToAction("MyOrders");
+
         }
 
         // GET: /Cart/MyOrders
