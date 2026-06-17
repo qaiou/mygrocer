@@ -5,6 +5,7 @@ using MYGROCER.Models;
 using System.Text.Json;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
+using MYGROCER.Patterns;
 
 namespace MYGROCER.Controllers
 {
@@ -308,6 +309,13 @@ namespace MYGROCER.Controllers
                     _db.Orders.Add(order);
                     await _db.SaveChangesAsync();
                     await tx.CommitAsync();
+
+                    // --- OBSERVER PATTERN TRIGGER ---
+                    // This executes immediately after the order is saved successfully
+                    var notifier = new OrderNotifier();
+                    notifier.Attach(new NotificationObserver());
+                    notifier.Notify(order);
+                    // --------------------------------
                 }
                 catch
                 {

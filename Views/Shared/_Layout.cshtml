@@ -148,7 +148,7 @@
                 </li>
             </ul>
 
-            <form asp-action="searchIndex" method="get"
+            <form asp-controller="Products" asp-action="Index" method="get"
                   class="d-flex align-items-center mx-3"
                   style="flex: 1; min-width: 0;">
                 <div class="input-group" style="height: 36px;">
@@ -164,7 +164,7 @@
                     </button>
                     @if (!string.IsNullOrEmpty(ViewBag.CurrentSearch as string))
                     {
-                        <a asp-action="searchIndex"
+                        <a asp-controller="Products" asp-action="Index"
                            class="btn btn-sm ms-1"
                            style="background: transparent; border: 1px solid rgba(255,255,255,0.4);
                             color: white; border-radius: 8px;">
@@ -172,10 +172,9 @@
                         </a>
                     }
                 </div>
-    <!-- Hidden antiforgery token for AJAX calls -->
-    <div style="display:none;">
-        @Html.AntiForgeryToken()
-    </div>
+                <div style="display:none;">
+                    @Html.AntiForgeryToken()
+                </div>
             </form>
 
             <ul class="navbar-nav d-flex flex-row align-items-center gap-1 flex-shrink-0">
@@ -220,7 +219,6 @@
         </div>
     </nav>
 
-    <!-- Login Modal (reusable) - single instance -->
     <div class="modal fade" id="loginModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
