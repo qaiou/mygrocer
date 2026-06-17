@@ -12,9 +12,15 @@
             <h3 class="fw-bold mb-1"><i class="bi bi-shield-lock text-success"></i> Admin Panel</h3>
             <p class="text-muted mb-0">Manage product catalogue — Add, Edit, Delete items</p>
         </div>
-        <a asp-action="Create" class="btn btn-success">
-            <i class="bi bi-plus-lg"></i> Add New Product
-        </a>
+        <div>
+            <a asp-action="Create" class="btn btn-success">
+                <i class="bi bi-plus-lg"></i> Add New Product
+            </a>
+            <a asp-controller="Admin" asp-action="Orders" class="btn btn-success">
+                Manage Orders
+            </a>
+        </div>
+        
     </div>
 
     <!-- Singleton Pattern Status Box — for demonstration/presentation -->

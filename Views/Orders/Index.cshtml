@@ -1,7 +1,7 @@
 ﻿@model IEnumerable<MYGROCER.Models.Order>
 
 @{
-    ViewData["Title"] = "Orders (Admin)";
+    ViewData["Title"] = "Admin - Manage Orders";
 }
 
 <div class="container py-4">
@@ -13,69 +13,79 @@
     }
     else
     {
-        <div class="accordion" id="ordersAccordion">
-            @foreach (var o in Model)
-            {
-                <div class="accordion-item">
-                    <h2 class="accordion-header" id="heading@o.OrderId">
-                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse@o.OrderId" aria-expanded="false" aria-controls="collapse@o.OrderId">
-                            Order #@o.OrderId — RM @o.TotalAmount.ToString("F2") — @o.OrderDate.ToLocalTime().ToString("g")
-                        </button>
-                    </h2>
-                    <div id="collapse@o.OrderId" class="accordion-collapse collapse" aria-labelledby="heading@o.OrderId" data-bs-parent="#ordersAccordion">
-                        <div class="accordion-body">
-                            <ul class="list-group">
-                                @foreach (var it in o.Items ?? new List<MYGROCER.Models.OrderItem>())
+        <div class="table-responsive">
+            <table class="table table-striped align-middle">
+                <thead class="table-success">
+                    <tr>
+                        <th>Order</th>
+                        <th>Order Date</th>
+                        <th>Product</th>
+                        <th class="text-end">Qty</th>
+                        <th class="text-end">Unit Price (RM)</th>
+                        <th class="text-end">Line Total (RM)</th>
+                        <th>Shipping Status</th>
+                        <th>Payment</th>
+                        <th class="text-end">Order Total (RM)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var o in Model)
+                    {
+                        var items = o.Items ?? new List<MYGROCER.Models.OrderItem>();
+                        var first = true;
+                        foreach (var it in items)
+                        {
+                            <tr>
+                                @if (first)
                                 {
-                                    var status = it.ShippingStatus ?? "Pending";
-                                    var badgeClass = status switch
-                                    {
-                                        "Delivered" => "bg-primary",
-                                        "Shipped" => "bg-success",
-                                        "Pending" => "bg-secondary",
-                                        _ => "bg-secondary"
-                                    };
-
-                                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                                        <div>
-                                            <div class="fw-bold">@it.ProductName</div>
-                                            <div class="small text-muted">Qty: @it.Quantity</div>
-                                            <div class="small mt-1">
-                                                <span class="badge @badgeClass">@status</span>
-                                            </div>
-                                        </div>
-
-                                        <div class="text-end">
-                                            <div class="mb-1 fw-semibold">RM @((it.UnitPrice * it.Quantity).ToString("F2"))</div>
-
-                                            <form asp-controller="Admin" asp-action="UpdateShipping" method="post" class="d-inline-flex align-items-center">
-                                                @Html.AntiForgeryToken()
-                                                <input type="hidden" name="orderItemId" value="@it.OrderItemId" />
-                                                @{
-                                                    var pendingSelected = status == "Pending";
-                                                    var shippedSelected = status == "Shipped";
-                                                    var deliveredSelected = status == "Delivered";
-                                                }
-                                                <select name="status" class="form-select form-select-sm me-2" style="width:140px;">
-                                                    <option value="Pending" selected='@(pendingSelected ? "selected" : null)'>Pending</option>
-                                                    <option value="Shipped" selected='@(shippedSelected ? "selected" : null)'>Shipped</option>
-                                                    <option value="Delivered" selected='@(deliveredSelected ? "selected" : null)'>Delivered</option>
-                                                </select>
-                                                <button type="submit" class="btn btn-sm btn-outline-primary">Save</button>
-                                            </form>
-                                        </div>
-                                    </li>
+                                    <td rowspan="@(items.Count())" class="align-middle">
+                                        <strong>#@o.OrderId</strong><br />
+                                        <small class="text-muted">Txn: @(o.TransactionId ?? "—")</small>
+                                    </td>
+                                    <td rowspan="@(items.Count())" class="align-middle">
+                                        @o.OrderDate.ToLocalTime().ToString("g")<br />
+                                        <small class="text-muted">Cust: @o.CustomerId</small>
+                                    </td>
                                 }
-                            </ul>
-
-                            <div class="mt-3 d-flex justify-content-between">
-                                <div class="small text-muted">Payment: @(o.PaymentMethod ?? "—")</div>
-                                <div class="fw-bold">Total: RM @o.TotalAmount.ToString("F2")</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            }
+                                <td>
+                                    <div class="fw-semibold">@it.ProductName</div>
+                                </td>
+                                <td class="text-end">@it.Quantity</td>
+                                <td class="text-end">RM @it.UnitPrice.ToString("F2")</td>
+                                <td class="text-end">RM @(it.UnitPrice * it.Quantity).ToString("F2")</td>
+                                <td>
+                                    <form asp-controller="Admin" asp-action="UpdateShipping" method="post" class="d-flex gap-2 align-items-center">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="orderItemId" value="@it.OrderItemId" />
+                                        @{
+                                            var status = it.ShippingStatus ?? "Pending";
+                                        }
+                                        <select name="status" class="form-select form-select-sm" style="width:120px;">
+                                            <option value="Pending" selected="@(status == "Pending")">Pending</option>
+                                            <option value="Shipped" selected="@(status == "Shipped")">Shipped</option>
+                                            <option value="Delivered" selected="@(status == "Delivered")">Delivered</option>
+                                        </select>
+                                        <button type="submit" class="btn btn-sm btn-outline-primary">Save</button>
+                                    </form>
+                                </td>
+                                @if (first)
+                                {
+                                    <td rowspan="@(items.Count())" class="align-middle">@(o.PaymentMethod ?? "—")</td>
+                                    <td rowspan="@(items.Count())" class="text-end align-middle fw-bold">RM @o.TotalAmount.ToString("F2")</td>
+                                    first = false;
+                                }
+                            </tr>
+                        }
+                        if (!items.Any())
+                        {
+                            <tr>
+                                <td><em>No items</em></td>
+                                <td colspan="7" class="text-end">RM @o.TotalAmount.ToString("F2")</td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
         </div>
     }
 </div>

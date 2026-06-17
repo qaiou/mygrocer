@@ -18,7 +18,7 @@ namespace MYGROCER.Controllers
                 .OrderByDescending(o => o.OrderDate)
                 .ToList();
 
-            return View(orders);
+            return View("~/Views/Orders/Index.cshtml", orders);
         }
 
         [HttpPost]
