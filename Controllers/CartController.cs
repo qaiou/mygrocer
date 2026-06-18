@@ -31,6 +31,7 @@ namespace MYGROCER.Controllers
                 // ensure a cart exists for this user
                 var cart = await _db.Carts
                     .Include(c => c.CartItems)
+                    .AsNoTracking()
                     .FirstOrDefaultAsync(c => c.CustomerId == customerId.Value);
 
                 if (cart == null)
@@ -124,20 +125,33 @@ namespace MYGROCER.Controllers
                     .ToListAsync();
                 _db.CartItems.RemoveRange(existingItems);
                 await _db.SaveChangesAsync();
-  
 
-                foreach (var item in cart.CartItems ?? new List<CartItemModel>())
-                {
-                    var newItem = new CartItemModel
+                // create a detached snapshot of incoming items to persist
+                var itemsSnapshot = (cart.CartItems ?? new List<CartItemModel>())
+                    .Select(i => new CartItemModel
                     {
                         CartId = dbCart.CartId,
-                        ProductId = item.ProductId,
-                        Name = item.Name,
-                        PricePerUnit = item.PricePerUnit,
-                        Quantity = item.Quantity
-                    };
-                    _db.CartItems.Add(newItem);
+                        ProductId = i.ProductId,
+                        Name = i.Name,
+                        PricePerUnit = i.PricePerUnit,
+                        Quantity = i.Quantity
+                    })
+                    .ToList();
+
+                // ensure any incoming CartItem instances are not tracked by the context
+                foreach (var incoming in cart.CartItems ?? Enumerable.Empty<CartItemModel>())
+                {
+                    var entry = _db.Entry(incoming);
+                    if (entry != null && entry.State != Microsoft.EntityFrameworkCore.EntityState.Detached)
+                        entry.State = Microsoft.EntityFrameworkCore.EntityState.Detached;
                 }
+
+                // clear navigation so in-memory collection matches persisted state
+                if (dbCart.CartItems != null)
+                    dbCart.CartItems.Clear();
+
+                // add the snapshot items in one batch
+                _db.CartItems.AddRange(itemsSnapshot);
 
                 dbCart.TotalPrice = cart.CartItems?.Sum(i => i.PricePerUnit * i.Quantity) ?? 0m;
                 await _db.SaveChangesAsync();
