@@ -103,6 +103,13 @@ namespace MYGROCER.Data
                 .HasForeignKey(ci => ci.CartId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            //EF generates permanent keys after SaveChanges.
+            modelBuilder.Entity<CartItemModel>()
+    .           HasKey(ci => ci.CartItemId);
+            modelBuilder.Entity<CartItemModel>()
+                .Property(ci => ci.CartItemId)
+                .ValueGeneratedOnAdd();
+
             // Seed a default user for testing/login (password stored in plain text for demo only)
             modelBuilder.Entity<UserModel>().HasData(
                 new UserModel
