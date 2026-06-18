@@ -3,69 +3,143 @@
     ViewData["Title"] = Model.Name;
 }
 
-<div class="container mt-4" style="max-width: 600px;">
-    <a asp-action="Index" class="btn btn-outline-secondary btn-sm mb-4">
-        <i class="bi bi-arrow-left"></i> Back to Products
-    </a>
+<div class="container py-4">
 
-    <div class="card p-4">
-        <div class="text-center mb-3" style="font-size: 5rem">
-            @switch (Model.Category)
-            {
-                case "Fresh Produce": <text>🥬</text> break;
-                case "Packaged Goods": <text>📦</text> break;
-                case "Food & Beverages":
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index" class="text-success text-decoration-none">Home</a></li>
+            <li class="breadcrumb-item"><a asp-controller="Products" asp-action="Index" class="text-success text-decoration-none">All Products</a></li>
+            <li class="breadcrumb-item"><a asp-controller="Products" asp-action="Index" asp-route-category="@Model.Category" class="text-success text-decoration-none">@Model.Category</a></li>
+            <li class="breadcrumb-item active text-muted">@Model.Name</li>
+        </ol>
+    </nav>
 
-                    <text>🧃</text>
-                    break;
-                case "Home & Living ":
+    <div class="row g-5 align-items-start">
 
-                    <text>🧹</text>
-                    break;
-                case "Health & Living": <text>💊</text>
-                    break;
-                case "Pets":
+        <!-- LEFT: Product Image -->
+        <div class="col-md-5">
+            <div class="border rounded-3 p-4 bg-white d-flex align-items-center justify-content-center"
+                 style="min-height: 380px; position: relative;">
 
-                    <text> 🐾</text>
-                    break;
+                <!-- Category badge on image -->
+                <span class="badge bg-success position-absolute top-0 start-0 m-3"
+                      style="font-size: 0.75rem;">@Model.Category</span>
 
-                default: <text>🛍️</text> break;
-            }
+                <img id="productMainImage"
+                     src="@Model.ImageUrl"
+                     alt="@Model.Name"
+                     style="max-height: 320px; max-width: 100%; object-fit: contain;"
+                     onerror="this.style.display='none'; document.getElementById('imgFallback').style.display='flex';" />
+
+                <!-- Fallback if image truly fails -->
+                <div id="imgFallback" class="flex-column align-items-center justify-content-center text-muted"
+                     style="display:none; position:absolute; inset:0;">
+                    <i class="bi bi-image" style="font-size: 4rem;"></i>
+                    <small>No image available</small>
+                </div>
+            </div>
         </div>
 
-        <span class="badge badge-category mb-2 align-self-start">@Model.Category</span>
-        <h3 class="fw-bold">@Model.Name</h3>
-        <p class="text-muted">@Model.Description</p>
+        <!-- RIGHT: Product Info -->
+        <div class="col-md-7">
 
-        <hr />
+            <!-- Name -->
+            <h2 class="fw-bold mb-1">@Model.Name</h2>
+            <p class="text-muted mb-3">@Model.Description</p>
 
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <span class="price-tag fs-3">RM @Model.BasePrice.ToString("F2")</span>
+            <hr />
+
+            <!-- Price -->
+            <div class="mb-3">
+                <span class="fw-bold text-success" style="font-size: 2rem;">RM @Model.BasePrice.ToString("F2")</span>
+            </div>
+
+            <!-- Stock Status -->
+            <div class="mb-4">
+                @if (Model.IsInStock)
+                {
+                    <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2"
+                          style="font-size: 0.9rem;">
+                        <i class="bi bi-check-circle-fill me-1"></i> In Stock (@Model.StockQuantity available)
+                    </span>
+                }
+                else
+                {
+                    <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-3 py-2"
+                          style="font-size: 0.9rem;">
+                        <i class="bi bi-x-circle-fill me-1"></i> Out of Stock
+                    </span>
+                }
+            </div>
+
+            <!-- Add to Cart -->
             @if (Model.IsInStock)
             {
-                <span class="badge bg-success fs-6">
-                    <i class="bi bi-check-circle"></i> In Stock (@Model.StockQuantity)
-                </span>
+                <form asp-controller="Cart" asp-action="Add" method="post" class="d-flex gap-3 align-items-center mb-4">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="productId" value="@Model.ProductId" />
+
+                    <!-- Quantity Selector -->
+                    <div class="input-group" style="width: 140px;">
+                        <button type="button" class="btn btn-outline-secondary"
+                                onclick="changeQty(-1)">
+                            −
+                        </button>
+                        <input type="number" name="quantity" id="qtyInput"
+                               value="1" min="1" max="@Model.StockQuantity"
+                               class="form-control text-center fw-bold"
+                               style="border-left:0; border-right:0;" />
+                        <button type="button" class="btn btn-outline-secondary"
+                                onclick="changeQty(1)">
+                            +
+                        </button>
+                    </div>
+
+                    <!-- Add to Cart Button -->
+                    <button type="submit" class="btn btn-success px-4 py-2 fw-semibold flex-grow-1"
+                            style="border-radius: 8px; font-size: 1rem;">
+                        <i class="bi bi-cart-plus-fill me-2"></i> Add to Cart
+                    </button>
+                </form>
             }
             else
             {
-                <span class="badge bg-danger fs-6">Out of Stock</span>
+                <button class="btn btn-secondary w-100 py-2 mb-4" disabled>
+                    <i class="bi bi-x-circle me-2"></i> Out of Stock
+                </button>
             }
-        </div>
 
-        @if (Model.IsInStock)
-        {
-        <div class="d-flex gap-3 align-items-center mt-3">
-                <form asp-controller="Cart" asp-action="Add" method="post" class="d-flex w-100 gap-3">
-                    @Html.AntiForgeryToken()
-                    <input type="hidden" name="productId" value="@Model.ProductId" />
-                    <input type="number" name="quantity" value="1" min="1" max="@Model.StockQuantity"
-                           class="form-control" style="width: 80px;" />
-                    <button type="submit" class="btn btn-primary flex-grow-1">
-                        <i class="bi bi-cart-plus"></i> Add to Cart
-                    </button>
-                </form>
+            <!-- Extra Info -->
+            <div class="bg-light rounded-3 p-3 small text-muted">
+                <div class="d-flex gap-3">
+                    <span><i class="bi bi-shield-check text-success me-1"></i> Genuine Product</span>
+                    <span><i class="bi bi-truck text-success me-1"></i> Fast Delivery</span>
+                    <span><i class="bi bi-arrow-return-left text-success me-1"></i> Easy Returns</span>
+                </div>
             </div>
-        }
+
+        </div>
     </div>
+
+    <!-- Back Button -->
+    <div class="mt-5">
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Back to Products
+        </a>
+    </div>
+
 </div>
+
+@section Scripts {
+    <script>
+        function changeQty(delta) {
+            var input = document.getElementById('qtyInput');
+            var val = parseInt(input.value) + delta;
+            var max = parseInt(input.max);
+            if (val < 1) val = 1;
+            if (val > max) val = max;
+            input.value = val;
+        }
+    </script>
+}
