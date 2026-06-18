@@ -1,24 +1,32 @@
-using MYGROCER.Models;
+using System;
+using System.Collections.Generic;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace MYGROCER.Services.Payments
 {
+    public enum PaymentMethod
+    {
+        Fpx,
+        Card
+    }
+
     public class PaymentFactory
     {
         private readonly IServiceProvider _services;
-
-        public PaymentFactory(IServiceProvider services)
+        private readonly Dictionary<PaymentMethod, Type> _map = new()
         {
-            _services = services;
-        }
+            { PaymentMethod.Fpx, typeof(FpxProcessor) },
+            { PaymentMethod.Card, typeof(CardProcessor) }
+        };
 
-        public IPaymentProcessor? Create(string method)
+        public PaymentFactory(IServiceProvider services) => _services = services;
+
+        public IPaymentProcessor Create(PaymentMethod method)
         {
-            return method?.ToLower() switch
-            {
-                "fpx" => _services.GetService(typeof(FpxProcessor)) as IPaymentProcessor,
-                "card" => _services.GetService(typeof(CardProcessor)) as IPaymentProcessor,
-                _ => null
-            };
+            if (!_map.TryGetValue(method, out var implType))
+                throw new NotSupportedException($"Payment method '{method}' is not supported.");
+
+            return (IPaymentProcessor)_services.GetRequiredService(implType);
         }
     }
 }

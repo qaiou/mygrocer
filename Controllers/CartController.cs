@@ -6,6 +6,7 @@ using System.Text.Json;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using MYGROCER.Patterns;
+using MYGROCER.Services.Payments;
 
 namespace MYGROCER.Controllers
 {
@@ -117,9 +118,13 @@ namespace MYGROCER.Controllers
                     await _db.SaveChangesAsync();
                 }
 
-                // Simple sync: remove existing items and re-add current ones
-                _db.CartItems.RemoveRange(dbCart.CartItems);
+                // load persisted items for this cart from the DB and remove them
+                var existingItems = await _db.CartItems
+                    .Where(ci => ci.CartId == dbCart.CartId)
+                    .ToListAsync();
+                _db.CartItems.RemoveRange(existingItems);
                 await _db.SaveChangesAsync();
+  
 
                 foreach (var item in cart.CartItems ?? new List<CartItemModel>())
                 {
@@ -345,8 +350,19 @@ namespace MYGROCER.Controllers
                 return RedirectToAction("Index");
             }
 
-            var processor = factory.Create(paymentMethod);
-            if (processor == null)
+            // parse selected payment method into enum
+            if (!System.Enum.TryParse<MYGROCER.Services.Payments.PaymentMethod>(paymentMethod, true, out var pm))
+            {
+                TempData["Error"] = "Invalid payment method.";
+                return RedirectToAction("Index");
+            }
+
+            IPaymentProcessor processor;
+            try
+            {
+                processor = factory.Create(pm);
+            }
+            catch
             {
                 TempData["Error"] = "Invalid payment method.";
                 return RedirectToAction("Index");
