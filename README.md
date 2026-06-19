@@ -6,7 +6,6 @@ An ASP.NET Core MVC project for an online grocery store. This project demonstrat
 - Visual Studio 2022
 - .NET SDK
 - SQL Server
-- SQL Server Management Studio (Optional)
 
 ### Installation
 
