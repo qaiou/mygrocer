@@ -21,6 +21,7 @@ namespace MYGROCER.Services.Payments
 
         public PaymentFactory(IServiceProvider services) => _services = services;
 
+        //returns the payment method selected
         public IPaymentProcessor Create(PaymentMethod method)
         {
             if (!_map.TryGetValue(method, out var implType))
@@ -28,5 +29,5 @@ namespace MYGROCER.Services.Payments
 
             return (IPaymentProcessor)_services.GetRequiredService(implType);
         }
-    }
 }
+    }

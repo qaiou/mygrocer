@@ -395,7 +395,7 @@ namespace MYGROCER.Controllers
             {
                 try
                 {
-                    // Re-load products inside the transaction to avoid race conditions
+                    // Reload products inside the transaction to avoid race conditions
                     foreach (var item in cart.CartItems)
                     {
                         var product = await _db.Products.FindAsync(item.ProductId);
@@ -449,7 +449,7 @@ namespace MYGROCER.Controllers
                 catch
                 {
                     await tx.RollbackAsync();
-                    // Note: if payment already charged, you should implement refund logic here.
+
                     TempData["Error"] = "An error occurred finalizing the order. Please contact support.";
                     return RedirectToAction("Index");
                 }
